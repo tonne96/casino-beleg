@@ -231,15 +231,15 @@ Aufgaben:
 - Beim Erstellen einer Transaktion Balance des Users anpassen.
 - Bei Ändern/Löschen einer Transaktion klären und dokumentieren, wie die Balance korrigiert wird.
 
-### P2 - Banking-Stat-Slice vorbereiten ? (weil in Banking service keine konkret vorgeschriebene Banking-Stats-API genannt wurde. In Roulette und Slot aber schon. Dort sind Stats Endpunkte ausdrücklich genannt)
+### Entfaellt - Banking-Stats
 
-Das PDF nennt im Banking-Service die Subdomain `Stat`. Es gibt aber keine konkret ausformulierten Banking-Stat-Endpunkte in der Funktionsliste.
+Rueckmeldung vom Dozenten: Stats im Banking-Service sollen weggelassen werden.
 
-Aufgaben:
+Konsequenz:
 
-- Minimal eine interne Struktur für `stat` vorbereiten.
-- Optional einfache Banking-Statistiken anbieten, z. B. Anzahl User, Anzahl Transaktionen, Summe aller Balances.
-- Falls keine externen Banking-Stat-Endpunkte gebaut werden, Entscheidung in README dokumentieren.
+- Keine Banking-Stat-Endpunkte bauen.
+- Keine eigene Banking-Stat-Logik vorbereiten.
+- Stats nur in den Spielservices `roulette-service` und `slots-service` umsetzen.
 
 ## Phase 2: Roulette-Service
 
@@ -582,8 +582,10 @@ Pflicht laut PDF:
 - Mockito für Mocking.
 - Jede Klasse möglichst mit eigener Testklasse.
 - Path-Coverage und Blackbox-Testing.
-- Randomisierte Tests.
+- Randomisierte Tests sind laut Dozentenfeedback optional, aber erlaubt.
 - Grenzwerte und Extremwerte testen.
+- Mehrere Assertions pro Test sind erlaubt, z. B. 5 bis 10 Assertions, wenn sie fachlich zusammengehoeren.
+- Eine Assertion pro Test ist ebenfalls okay und gibt keinen Punktabzug.
 
 ### P1 - Banking-Unit-Tests
 
@@ -821,5 +823,4 @@ Diese Punkte sollte das Team bewusst entscheiden und dokumentieren:
 - Wie wird bei Ändern/Löschen einer Transaktion die Balance korrigiert?
 - Welche Rechnungssteller sind im Banking-Service erlaubt?
 - Wie wird "nicht genug Guthaben" behandelt?
-- Werden Banking-Stat-Endpunkte gebaut oder nur intern vorbereitet?
 - Wie detailliert werden Swagger-Beschreibungen gepflegt?
