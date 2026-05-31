@@ -1,0 +1,144 @@
+package beleg.slotsservice.handler.game;
+
+import beleg.slotsservice.model.SlotGameResult;
+import beleg.slotsservice.model.SlotSymbol;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Handler = Spiellogik.
+ *
+ * Diese Klasse kennt noch kein HTTP, keine Datenbank und kein Banking.
+ * Sie entscheidet nur, welche Symbole erscheinen und wie die Runde bewertet wird.
+ */
+@Service
+public class SlotGameHandler {
+
+    private static final int REEL_COUNT = 3;
+    private static final int JACKPOT_MULTIPLIER = 10;
+    private static final int THREE_EQUAL_MULTIPLIER = 3;
+    private static final int TWO_EQUAL_MULTIPLIER = 1;
+
+    private final Random random;
+
+    public SlotGameHandler() {
+        this.random = new SecureRandom();
+    }
+
+    
+
+
+    /**
+     * Spielt eine echte zufällige Slot-Runde.
+     */
+    public SlotGameResult play(BigDecimal betAmount) {
+        validateBetAmount(betAmount);
+        return evaluate(betAmount, generateSlotStates());
+    }
+
+
+
+    /**
+     * Bewertet eine Slot-Runde mit vorgegebenen Symbolen.
+     * Diese Methode ist besonders gut testbar, weil kein Zufall beteiligt ist.
+     */
+    public SlotGameResult evaluate(BigDecimal betAmount, List<SlotSymbol> slotStates) {
+        validateBetAmount(betAmount);
+        validateSlotStates(slotStates);
+
+        int multiplier = calculatePayoutMultiplier(slotStates);
+        boolean winning = multiplier > 0;
+
+        BigDecimal amount = winning
+                ? betAmount.multiply(BigDecimal.valueOf(multiplier))
+                : betAmount.negate();
+
+        return new SlotGameResult(winning, amount, slotStates, multiplier);
+    }
+
+
+
+    private List<SlotSymbol> generateSlotStates() {
+        SlotSymbol[] symbols = SlotSymbol.values();
+        List<SlotSymbol> slotStates = new ArrayList<>();
+
+        for (int reel = 0; reel < REEL_COUNT; reel++) {
+            slotStates.add(symbols[random.nextInt(symbols.length)]);
+        }
+
+        return slotStates;
+    }
+
+
+
+
+    private int calculatePayoutMultiplier(List<SlotSymbol> slotStates) {
+        if (isJackpot(slotStates)) {
+            return JACKPOT_MULTIPLIER;
+        }
+        if (allSymbolsEqual(slotStates)) {
+            return THREE_EQUAL_MULTIPLIER;
+        }
+        if (hasTwoEqualSymbols(slotStates)) {
+            return TWO_EQUAL_MULTIPLIER;
+        }
+        return 0;
+    }
+
+
+
+
+    private boolean isJackpot(List<SlotSymbol> slotStates) {
+        return slotStates.stream().allMatch(symbol -> symbol == SlotSymbol.SEVEN);
+    }
+
+
+
+
+    private boolean allSymbolsEqual(List<SlotSymbol> slotStates) {
+        SlotSymbol firstSymbol = slotStates.get(0);
+        return slotStates.stream().allMatch(symbol -> symbol == firstSymbol);
+    }
+
+
+
+
+    private boolean hasTwoEqualSymbols(List<SlotSymbol> slotStates) {
+        SlotSymbol first = slotStates.get(0);
+        SlotSymbol second = slotStates.get(1);
+        SlotSymbol third = slotStates.get(2);
+
+        return first == second || first == third || second == third;
+    }
+
+
+
+
+
+    private void validateBetAmount(BigDecimal betAmount) {
+        if (betAmount == null) {
+            throw new IllegalArgumentException("BetAmount darf nicht null sein.");
+        }
+        if (betAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("BetAmount muss groesser als 0 sein.");
+        }
+    }
+
+
+
+
+
+    private void validateSlotStates(List<SlotSymbol> slotStates) {
+        if (slotStates == null || slotStates.size() != REEL_COUNT) {
+            throw new IllegalArgumentException("Eine Slot-Runde braucht genau drei Symbole.");
+        }
+        if (slotStates.stream().anyMatch(symbol -> symbol == null)) {
+            throw new IllegalArgumentException("Slot-Symbole duerfen nicht null sein.");
+        }
+    }
+}
