@@ -70,10 +70,7 @@ public class TransactionController {
             return ResponseEntity.notFound().build();
         }
         try {
-            // Kontostand anpassen
-            userHandler.adjustBalance(user_id, request.amount());
-
-            // Transaktion speichern
+            // Transaktion speichern und Kontostand in einem Vorgang anpassen
             var transaction = transactionHandler.createTransaction(
                     request.invoicing_party(), user_id, request.amount());
             return ResponseEntity.status(HttpStatus.CREATED).body(TransactionView.from(transaction));

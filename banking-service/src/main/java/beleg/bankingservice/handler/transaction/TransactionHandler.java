@@ -1,7 +1,10 @@
 package beleg.bankingservice.handler.transaction;
 
 import beleg.bankingservice.model.Transaction;
+import beleg.bankingservice.model.User;
 import beleg.bankingservice.repository.TransactionRepository;
+import beleg.bankingservice.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,9 +19,11 @@ import java.util.Optional;
 public class TransactionHandler {
 
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
-    public TransactionHandler(TransactionRepository transactionRepository) {
+    public TransactionHandler(TransactionRepository transactionRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -54,8 +59,14 @@ public class TransactionHandler {
      * @return gespeicherte Transaktion mit generierter ID
      * @throws IllegalArgumentException wenn invoicingParty unbekannt ist
      */
+    @Transactional
     public Transaction createTransaction(String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User existiert nicht: " + userId));
+
+        user.adjustBalance(amount);
+
         Transaction transaction = new Transaction(party, userId, amount);
         return transactionRepository.save(transaction);
     }
