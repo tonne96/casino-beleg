@@ -1,7 +1,9 @@
 package beleg.slotsservice.controller;
 
 import beleg.slotsservice.handler.game.SlotGameHistoryHandler;
+import beleg.slotsservice.handler.stats.SlotStatsHandler;
 import beleg.slotsservice.view.SlotGameView;
+import beleg.slotsservice.view.SlotsStatsView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +19,21 @@ import java.util.List;
 public class SlotsStatsController {
 
     private final SlotGameHistoryHandler slotGameHistoryHandler;
+    private final SlotStatsHandler slotStatsHandler;
 
-    public SlotsStatsController(SlotGameHistoryHandler slotGameHistoryHandler) {
+    public SlotsStatsController(SlotGameHistoryHandler slotGameHistoryHandler, SlotStatsHandler slotStatsHandler) {
         this.slotGameHistoryHandler = slotGameHistoryHandler;
+        this.slotStatsHandler = slotStatsHandler;
+    }
+
+    /**
+     * GET /casino/slots/api/stats
+     *
+     * Liefert eine zusammengefasste Statistik ueber alle gespeicherten Slot-Runden.
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<SlotsStatsView> getStats() {
+        return ResponseEntity.ok(slotStatsHandler.getStats());
     }
 
     /**
