@@ -15,7 +15,7 @@ import java.util.Optional;
  */
 
 @Service
-public class UserHandler {
+public class UserHandler implements IUserHandler {
 
     private final UserRepository userRepository;
 

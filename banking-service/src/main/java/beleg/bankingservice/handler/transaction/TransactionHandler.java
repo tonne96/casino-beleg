@@ -16,7 +16,7 @@ import java.util.Optional;
  * Controller fragt Handler, Handler kennt Repository aber nicht HTTP und JSON
  */
 @Service
-public class TransactionHandler {
+public class TransactionHandler implements ITransactionHandler {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
@@ -29,6 +29,7 @@ public class TransactionHandler {
     /**
      * Liefert alle Transaktionen.
      */
+    @Override
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
@@ -39,6 +40,7 @@ public class TransactionHandler {
      * @param userId User-ID
      * @return Liste der Transaktionen (leer wenn keine vorhanden)
      */
+    @Override
     public List<Transaction> getTransactionsByUser(Long userId) {
         return transactionRepository.findByUserId(userId);
     }
@@ -46,6 +48,7 @@ public class TransactionHandler {
     /**
      * Liefert eine einzelne Transaktion anhand ihrer ID.
      */
+    @Override
     public Optional<Transaction> getTransaction(Long id) {
         return transactionRepository.findById(id);
     }
@@ -59,6 +62,7 @@ public class TransactionHandler {
      * @return gespeicherte Transaktion mit generierter ID
      * @throws IllegalArgumentException wenn invoicingParty unbekannt ist
      */
+    @Override
     @Transactional
     public Transaction createTransaction(String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
@@ -76,6 +80,7 @@ public class TransactionHandler {
      *
      * @return Optional mit aktualisierter Transaktion oder leer wenn nicht gefunden
      */
+    @Override
     public Optional<Transaction> updateTransaction(Long id, String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
         return transactionRepository.findById(id).map(transaction -> {
@@ -89,6 +94,7 @@ public class TransactionHandler {
      *
      * @return Optional mit der gelöschten Transaktion oder leer wenn nicht gefunden
      */
+    @Override
     public Optional<Transaction> deleteTransaction(Long id) {
         return transactionRepository.findById(id).map(transaction -> {
             transactionRepository.delete(transaction);

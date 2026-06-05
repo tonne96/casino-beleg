@@ -1,5 +1,6 @@
 package beleg.bankingservice.model;
 
+import beleg.bankingservice.controller.user.IUserController;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "casino_user")  // "user" ist ein reserviertes Wort in PostgreSQL
-public class User {
+public class User implements IUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +33,7 @@ public class User {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
 
-    // ── JPA benötigt einen parameterlosen Konstruktor ──────
+    // ── parameterloser Konstruktor für JPA ──────
     protected User() {}
 
     /**
@@ -49,19 +50,22 @@ public class User {
     }
 
     // ── Getter ────────────────────────────────────────────
-
+    @Override
     public Long getId() {
         return id;
     }
 
+    @Override
     public String getFirstName() {
         return firstName;
     }
 
+    @Override
     public String getLastName() {
         return lastName;
     }
 
+    @Override
     public BigDecimal getBalance() {
         return balance;
     }
@@ -91,23 +95,23 @@ public class User {
         setLastName(lastName);
     }
 
-    // ── Private Validierungshelfer ────────────────────────
+    // private helper
 
     private void setFirstName(String firstName) {
         if (firstName == null || firstName.isBlank()) {
-            throw new IllegalArgumentException("firstName darf nicht leer sein.");
+            throw new IllegalArgumentException("firstName cannot be empty.");
         }
         this.firstName = firstName.trim();
     }
 
     private void setLastName(String lastName) {
         if (lastName == null || lastName.isBlank()) {
-            throw new IllegalArgumentException("lastName darf nicht leer sein.");
+            throw new IllegalArgumentException("lastName cannot be empty.");
         }
         this.lastName = lastName.trim();
     }
 
-    // ── equals / hashCode auf Basis der DB-ID ─────────────
+    // overwrites
 
     @Override
     public boolean equals(Object o) {
