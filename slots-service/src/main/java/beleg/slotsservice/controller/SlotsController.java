@@ -1,12 +1,12 @@
 package beleg.slotsservice.controller;
 
-import beleg.slotsservice.client.banking.BankingClient;
-import beleg.slotsservice.client.banking.BankingUserView;
+import beleg.slotsservice.client.IBankingClient;
+import beleg.slotsservice.client.BankingUserView;
 import beleg.slotsservice.exception.BankingCommunicationException;
 import beleg.slotsservice.exception.BankingUserNotFoundException;
 import beleg.slotsservice.exception.InsufficientBalanceException;
-import beleg.slotsservice.handler.game.SlotGameHistoryHandler;
-import beleg.slotsservice.handler.game.SlotGameHandler;
+import beleg.slotsservice.handler.game.ISlotGameHandler;
+import beleg.slotsservice.handler.game.ISlotGameHistoryHandler;
 import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.model.SlotGameResult;
 import beleg.slotsservice.view.PlaySlotsRequest;
@@ -27,14 +27,14 @@ import java.math.BigDecimal;
 @RequestMapping("/casino/slots/api")
 public class SlotsController {
 
-    private final SlotGameHandler slotGameHandler;
-    private final SlotGameHistoryHandler slotGameHistoryHandler;
-    private final BankingClient bankingClient;
+    private final ISlotGameHandler slotGameHandler;
+    private final ISlotGameHistoryHandler slotGameHistoryHandler;
+    private final IBankingClient bankingClient;
 
     public SlotsController(
-            SlotGameHandler slotGameHandler,
-            SlotGameHistoryHandler slotGameHistoryHandler,
-            BankingClient bankingClient) {
+            ISlotGameHandler slotGameHandler,
+            ISlotGameHistoryHandler slotGameHistoryHandler,
+            IBankingClient bankingClient) {
         this.slotGameHandler = slotGameHandler;
         this.slotGameHistoryHandler = slotGameHistoryHandler;
         this.bankingClient = bankingClient;

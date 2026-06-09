@@ -1,4 +1,4 @@
-package beleg.slotsservice.client.banking;
+package beleg.slotsservice.client;
 
 import beleg.slotsservice.exception.BankingCommunicationException;
 import beleg.slotsservice.exception.BankingUserNotFoundException;
@@ -12,13 +12,13 @@ import org.springframework.web.client.RestClientException;
 import java.math.BigDecimal;
 
 /**
- * Client = HTTP-Kommunikation zum Banking-Service.
+ * BankingClient = konkrete HTTP-Implementierung des IBankingClient-Interfaces.
  *
- * Der Slots-Service kennt dadurch nicht direkt die Banking-Implementierung,
- * sondern nur die Banking-API.
+ * Diese Klasse kennt die Banking-URLs und nutzt Spring RestClient.
+ * Andere Klassen haengen trotzdem nur vom Interface IBankingClient ab.
  */
 @Service
-public class BankingClient {
+public class BankingClient implements IBankingClient {
 
     private static final String INVOICING_PARTY = "SLOTS";
 
@@ -37,6 +37,7 @@ public class BankingClient {
      *  - existiert der User?
      *  - wie hoch ist sein aktuelles Guthaben?
      */
+    @Override
     public BankingUserView getUser(Long userId) {
         try {
             return restClient.get()
@@ -57,6 +58,7 @@ public class BankingClient {
      *  - positiv = Gewinn
      *  - negativ = Verlust
      */
+    @Override
     public void createSlotsTransaction(Long userId, BigDecimal amount) {
         BankingTransactionRequest request = new BankingTransactionRequest(INVOICING_PARTY, userId, amount);
 

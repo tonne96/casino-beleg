@@ -13,13 +13,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Handler = Info-Logik.
+ * SlotInfoHandler = Standard-Implementierung fuer Regeln und Wahrscheinlichkeiten.
  *
- * Diese Klasse liefert Regeln und Wahrscheinlichkeiten fuer Swagger/Clients.
+ * Diese Klasse liefert Informationen fuer Swagger/Clients.
  * Sie spielt keine Runde und veraendert keine Daten.
  */
 @Service
-public class SlotInfoHandler {
+public class SlotInfoHandler implements ISlotInfoHandler {
 
     private static final int REEL_COUNT = 3;
     private static final int JACKPOT_MULTIPLIER = 10;
@@ -30,6 +30,7 @@ public class SlotInfoHandler {
     /**
      * Liefert die menschenlesbaren Spielregeln.
      */
+    @Override
     public SlotsRulesView getRules() {
         return new SlotsRulesView(
                 REEL_COUNT,
@@ -49,6 +50,7 @@ public class SlotInfoHandler {
     /**
      * Liefert die Chancen auf Basis gleichverteilter Symbole.
      */
+    @Override
     public SlotsChancesView getChances() {
         int symbolCount = SlotSymbol.values().length;
         int totalOutcomes = calculateTotalOutcomes(symbolCount);

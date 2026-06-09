@@ -1,4 +1,4 @@
-package beleg.slotsservice.client.banking;
+package beleg.slotsservice.client;
 
 import java.math.BigDecimal;
 

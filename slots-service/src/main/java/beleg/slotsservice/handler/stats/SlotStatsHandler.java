@@ -10,13 +10,13 @@ import java.math.RoundingMode;
 import java.util.List;
 
 /**
- * Handler = Statistik-Logik fuer gespeicherte Slot-Runden.
+ * SlotStatsHandler = Standard-Implementierung fuer Slot-Statistiken.
  *
  * Diese Klasse berechnet zusammengefasste Werte aus der Slots-Datenbank.
  * Sie spielt keine neue Runde und loescht keine Daten.
  */
 @Service
-public class SlotStatsHandler {
+public class SlotStatsHandler implements ISlotStatsHandler {
 
     private static final int JACKPOT_MULTIPLIER = 10;
 
@@ -29,6 +29,7 @@ public class SlotStatsHandler {
     /**
      * Berechnet die Gesamtstatistik ueber alle gespeicherten Slot-Runden.
      */
+    @Override
     public SlotsStatsView getStats() {
         List<SlotGame> games = slotGameRepository.findAll();
 

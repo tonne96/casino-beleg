@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Handler = Spiellogik.
+ * SlotGameHandler = Implementierung der Slot-Spiellogik.
  *
- * Diese Klasse kennt noch kein HTTP, keine Datenbank und kein Banking.
+ * Diese Klasse kennt kein HTTP, keine Datenbank und kein Banking.
  * Sie entscheidet nur, welche Symbole erscheinen und wie die Runde bewertet wird.
  */
 @Service
-public class SlotGameHandler {
+public class SlotGameHandler implements ISlotGameHandler {
 
     private static final int REEL_COUNT = 3;
     private static final int JACKPOT_MULTIPLIER = 10;
@@ -30,12 +30,10 @@ public class SlotGameHandler {
         this.random = new SecureRandom();
     }
 
-    
-
-
     /**
-     * Spielt eine echte zufällige Slot-Runde.
+     * Spielt eine echte zufaellige Slot-Runde.
      */
+    @Override
     public SlotGameResult play(BigDecimal betAmount) {
         validateBetAmount(betAmount);
         return evaluate(betAmount, generateSlotStates());
@@ -43,10 +41,12 @@ public class SlotGameHandler {
 
 
 
+
     /**
      * Bewertet eine Slot-Runde mit vorgegebenen Symbolen.
      * Diese Methode ist besonders gut testbar, weil kein Zufall beteiligt ist.
      */
+    @Override
     public SlotGameResult evaluate(BigDecimal betAmount, List<SlotSymbol> slotStates) {
         validateBetAmount(betAmount);
         validateSlotStates(slotStates);
@@ -63,6 +63,8 @@ public class SlotGameHandler {
 
 
 
+
+
     private List<SlotSymbol> generateSlotStates() {
         SlotSymbol[] symbols = SlotSymbol.values();
         List<SlotSymbol> slotStates = new ArrayList<>();
@@ -73,6 +75,8 @@ public class SlotGameHandler {
 
         return slotStates;
     }
+
+
 
 
 
@@ -93,9 +97,12 @@ public class SlotGameHandler {
 
 
 
+
+
     private boolean isJackpot(List<SlotSymbol> slotStates) {
         return slotStates.stream().allMatch(symbol -> symbol == SlotSymbol.SEVEN);
     }
+
 
 
 
@@ -104,6 +111,7 @@ public class SlotGameHandler {
         SlotSymbol firstSymbol = slotStates.get(0);
         return slotStates.stream().allMatch(symbol -> symbol == firstSymbol);
     }
+
 
 
 

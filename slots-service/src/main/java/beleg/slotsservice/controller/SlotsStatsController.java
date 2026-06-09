@@ -1,7 +1,7 @@
 package beleg.slotsservice.controller;
 
-import beleg.slotsservice.handler.game.SlotGameHistoryHandler;
-import beleg.slotsservice.handler.stats.SlotStatsHandler;
+import beleg.slotsservice.handler.game.ISlotGameHistoryHandler;
+import beleg.slotsservice.handler.stats.ISlotStatsHandler;
 import beleg.slotsservice.view.SlotGameView;
 import beleg.slotsservice.view.SlotsStatsView;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +18,10 @@ import java.util.List;
 @RequestMapping("/casino/slots/api")
 public class SlotsStatsController {
 
-    private final SlotGameHistoryHandler slotGameHistoryHandler;
-    private final SlotStatsHandler slotStatsHandler;
+    private final ISlotGameHistoryHandler slotGameHistoryHandler;
+    private final ISlotStatsHandler slotStatsHandler;
 
-    public SlotsStatsController(SlotGameHistoryHandler slotGameHistoryHandler, SlotStatsHandler slotStatsHandler) {
+    public SlotsStatsController(ISlotGameHistoryHandler slotGameHistoryHandler, ISlotStatsHandler slotStatsHandler) {
         this.slotGameHistoryHandler = slotGameHistoryHandler;
         this.slotStatsHandler = slotStatsHandler;
     }

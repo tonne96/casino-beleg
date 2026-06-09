@@ -1,6 +1,6 @@
 package beleg.slotsservice.controller;
 
-import beleg.slotsservice.handler.info.SlotInfoHandler;
+import beleg.slotsservice.handler.info.ISlotInfoHandler;
 import beleg.slotsservice.view.SlotsChancesView;
 import beleg.slotsservice.view.SlotsRulesView;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/casino/slots/api/info")
 public class SlotsInfoController {
 
-    private final SlotInfoHandler slotInfoHandler;
+    private final ISlotInfoHandler slotInfoHandler;
 
-    public SlotsInfoController(SlotInfoHandler slotInfoHandler) {
+    public SlotsInfoController(ISlotInfoHandler slotInfoHandler) {
         this.slotInfoHandler = slotInfoHandler;
     }
 
