@@ -1,5 +1,6 @@
 package beleg.slotsservice.handler.game;
 
+import beleg.slotsservice.factory.ISlotGameFactory;
 import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.model.SlotGameResult;
 import beleg.slotsservice.repository.SlotGameRepository;
@@ -18,27 +19,21 @@ import java.util.Optional;
 public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
 
     private final SlotGameRepository slotGameRepository;
+    private final ISlotGameFactory slotGameFactory;
 
-    public SlotGameHistoryHandler(SlotGameRepository slotGameRepository) {
+    public SlotGameHistoryHandler(SlotGameRepository slotGameRepository, ISlotGameFactory slotGameFactory) {
         this.slotGameRepository = slotGameRepository;
+        this.slotGameFactory = slotGameFactory;
     }
-
-
-
-
 
     /**
      * Speichert eine gespielte Slot-Runde in der Slots-Datenbank.
      */
     @Override
     public SlotGame saveGame(Long userId, BigDecimal betAmount, SlotGameResult result) {
-        SlotGame slotGame = new SlotGame(userId, betAmount, result);
+        SlotGame slotGame = slotGameFactory.create(userId, betAmount, result);
         return slotGameRepository.save(slotGame);
     }
-
-
-
-
 
     /**
      * Liefert alle gespeicherten Slot-Runden.
@@ -48,10 +43,6 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
         return slotGameRepository.findAll();
     }
 
-
-
-
-
     /**
      * Liefert alle gespeicherten Slot-Runden eines Users.
      */
@@ -60,11 +51,6 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
         return slotGameRepository.findByUserId(userId);
     }
 
-
-
-
-
-
     /**
      * Liefert eine einzelne gespeicherte Slot-Runde.
      */
@@ -72,10 +58,6 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
     public Optional<SlotGame> getGame(Long gameId) {
         return slotGameRepository.findById(gameId);
     }
-
-
-
-
 
     /**
      * Loescht eine gespeicherte Slot-Runde.

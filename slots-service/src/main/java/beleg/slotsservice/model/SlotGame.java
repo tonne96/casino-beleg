@@ -55,13 +55,26 @@ public class SlotGame {
     protected SlotGame() {}
 
     /**
-     * Erstellt eine neue gespeicherte Slot-Runde aus dem berechneten Spielergebnis.
+     * Factory-Methode fuer eine neue gespeicherte Slot-Runde.
+     *
+     * Von aussen soll eine SlotGame-Entity bewusst ueber create(...) erzeugt werden.
+     * Dadurch bleibt die Erzeugung an einer Stelle gekapselt.
      */
-    public SlotGame(Long userId, BigDecimal betAmount, SlotGameResult result) {
+    public static SlotGame create(Long userId, BigDecimal betAmount, SlotGameResult result) {
         validateUserId(userId);
         validateBetAmount(betAmount);
         validateResult(result);
 
+        return new SlotGame(userId, betAmount, result);
+    }
+
+    /**
+     * Fachlicher Konstruktor bleibt privat.
+     *
+     * Validierung passiert in create(...), damit andere Klassen nicht direkt
+     * ueber new SlotGame(...) an der Factory-Methode vorbei erzeugen.
+     */
+    private SlotGame(Long userId, BigDecimal betAmount, SlotGameResult result) {
         List<SlotSymbol> slotStates = result.slotStates();
 
         this.userId = userId;
@@ -107,7 +120,7 @@ public class SlotGame {
         return playedAt;
     }
 
-    private void validateUserId(Long userId) {
+    private static void validateUserId(Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("UserId darf nicht null sein.");
         }
@@ -116,7 +129,7 @@ public class SlotGame {
         }
     }
 
-    private void validateBetAmount(BigDecimal betAmount) {
+    private static void validateBetAmount(BigDecimal betAmount) {
         if (betAmount == null) {
             throw new IllegalArgumentException("BetAmount darf nicht null sein.");
         }
@@ -125,7 +138,7 @@ public class SlotGame {
         }
     }
 
-    private void validateResult(SlotGameResult result) {
+    private static void validateResult(SlotGameResult result) {
         if (result == null) {
             throw new IllegalArgumentException("SlotGameResult darf nicht null sein.");
         }
