@@ -7,15 +7,15 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository = direkter Datenbankzugriff fuer gespeicherte Slot-Runden.
+ * Repository = direkter Datenbankzugriff fuer gespeicherte Slot-Ergebnisse.
  *
  * JpaRepository bringt Standardmethoden wie findAll, findById, save und delete mit.
  */
 @Repository
-public interface SlotGameRepository extends JpaRepository<SlotGame, Long> {
+public interface IGameResultRepository extends JpaRepository<SlotGame, Long> {
 
     /**
-     * Liefert alle gespeicherten Slot-Runden eines bestimmten Users.
+     * Liefert alle gespeicherten Slot-Ergebnisse eines bestimmten Users.
      */
     List<SlotGame> findByUserId(Long userId);
 }

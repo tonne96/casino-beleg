@@ -1,7 +1,7 @@
 package beleg.slotsservice.handler.stats;
 
 import beleg.slotsservice.model.SlotGame;
-import beleg.slotsservice.repository.SlotGameRepository;
+import beleg.slotsservice.repository.IGameResultRepository;
 import beleg.slotsservice.view.SlotsStatsView;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +20,10 @@ public class SlotStatsHandler implements ISlotStatsHandler {
 
     private static final int JACKPOT_MULTIPLIER = 10;
 
-    private final SlotGameRepository slotGameRepository;
+    private final IGameResultRepository gameResultRepository;
 
-    public SlotStatsHandler(SlotGameRepository slotGameRepository) {
-        this.slotGameRepository = slotGameRepository;
+    public SlotStatsHandler(IGameResultRepository gameResultRepository) {
+        this.gameResultRepository = gameResultRepository;
     }
 
     /**
@@ -31,7 +31,7 @@ public class SlotStatsHandler implements ISlotStatsHandler {
      */
     @Override
     public SlotsStatsView getStats() {
-        List<SlotGame> games = slotGameRepository.findAll();
+        List<SlotGame> games = gameResultRepository.findAll();
 
         long totalGames = games.size();
         long totalWins = 0;

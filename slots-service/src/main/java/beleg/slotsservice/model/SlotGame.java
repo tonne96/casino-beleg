@@ -60,32 +60,64 @@ public class SlotGame {
      * Von aussen soll eine SlotGame-Entity bewusst ueber create(...) erzeugt werden.
      * Dadurch bleibt die Erzeugung an einer Stelle gekapselt.
      */
-    public static SlotGame create(Long userId, BigDecimal betAmount, SlotGameResult result) {
+    public static SlotGame create(
+            Long userId,
+            BigDecimal betAmount,
+            boolean winning,
+            BigDecimal amount,
+            SlotSymbol firstSlot,
+            SlotSymbol secondSlot,
+            SlotSymbol thirdSlot,
+            int payoutMultiplier,
+            LocalDateTime playedAt) {
         validateUserId(userId);
         validateBetAmount(betAmount);
-        validateResult(result);
+        validateAmount(amount);
+        validateSlotSymbol(firstSlot, "FirstSlot");
+        validateSlotSymbol(secondSlot, "SecondSlot");
+        validateSlotSymbol(thirdSlot, "ThirdSlot");
+        validatePayoutMultiplier(payoutMultiplier);
+        validatePlayedAt(playedAt);
 
-        return new SlotGame(userId, betAmount, result);
+        return new SlotGame(
+                userId,
+                betAmount,
+                winning,
+                amount,
+                firstSlot,
+                secondSlot,
+                thirdSlot,
+                payoutMultiplier,
+                playedAt
+        );
     }
 
     /**
      * Fachlicher Konstruktor bleibt privat.
      *
-     * Validierung passiert in create(...), damit andere Klassen nicht direkt
-     * ueber new SlotGame(...) an der Factory-Methode vorbei erzeugen.
+     * Die SlotGame-Entity bekommt nur fertige Werte. Sie kennt kein
+     * SlotGameResult, weil das Ergebnis vorher vom Simulator berechnet und
+     * in der Factory in speicherbare Felder uebersetzt wird.
      */
-    private SlotGame(Long userId, BigDecimal betAmount, SlotGameResult result) {
-        List<SlotSymbol> slotStates = result.slotStates();
-
+    private SlotGame(
+            Long userId,
+            BigDecimal betAmount,
+            boolean winning,
+            BigDecimal amount,
+            SlotSymbol firstSlot,
+            SlotSymbol secondSlot,
+            SlotSymbol thirdSlot,
+            int payoutMultiplier,
+            LocalDateTime playedAt) {
         this.userId = userId;
         this.betAmount = betAmount;
-        this.winning = result.winning();
-        this.amount = result.amount();
-        this.firstSlot = slotStates.get(0);
-        this.secondSlot = slotStates.get(1);
-        this.thirdSlot = slotStates.get(2);
-        this.payoutMultiplier = result.payoutMultiplier();
-        this.playedAt = LocalDateTime.now();
+        this.winning = winning;
+        this.amount = amount;
+        this.firstSlot = firstSlot;
+        this.secondSlot = secondSlot;
+        this.thirdSlot = thirdSlot;
+        this.payoutMultiplier = payoutMultiplier;
+        this.playedAt = playedAt;
     }
 
     public Long getId() {
@@ -138,9 +170,27 @@ public class SlotGame {
         }
     }
 
-    private static void validateResult(SlotGameResult result) {
-        if (result == null) {
-            throw new IllegalArgumentException("SlotGameResult darf nicht null sein.");
+    private static void validateAmount(BigDecimal amount) {
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount darf nicht null sein.");
+        }
+    }
+
+    private static void validateSlotSymbol(SlotSymbol slotSymbol, String fieldName) {
+        if (slotSymbol == null) {
+            throw new IllegalArgumentException(fieldName + " darf nicht null sein.");
+        }
+    }
+
+    private static void validatePayoutMultiplier(int payoutMultiplier) {
+        if (payoutMultiplier < 0) {
+            throw new IllegalArgumentException("PayoutMultiplier darf nicht negativ sein.");
+        }
+    }
+
+    private static void validatePlayedAt(LocalDateTime playedAt) {
+        if (playedAt == null) {
+            throw new IllegalArgumentException("PlayedAt darf nicht null sein.");
         }
     }
 

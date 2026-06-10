@@ -3,7 +3,7 @@ package beleg.slotsservice.handler.game;
 import beleg.slotsservice.factory.ISlotGameFactory;
 import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.model.SlotGameResult;
-import beleg.slotsservice.repository.SlotGameRepository;
+import beleg.slotsservice.repository.IGameResultRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,11 +18,11 @@ import java.util.Optional;
 @Service
 public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
 
-    private final SlotGameRepository slotGameRepository;
+    private final IGameResultRepository gameResultRepository;
     private final ISlotGameFactory slotGameFactory;
 
-    public SlotGameHistoryHandler(SlotGameRepository slotGameRepository, ISlotGameFactory slotGameFactory) {
-        this.slotGameRepository = slotGameRepository;
+    public SlotGameHistoryHandler(IGameResultRepository gameResultRepository, ISlotGameFactory slotGameFactory) {
+        this.gameResultRepository = gameResultRepository;
         this.slotGameFactory = slotGameFactory;
     }
 
@@ -32,7 +32,7 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
     @Override
     public SlotGame saveGame(Long userId, BigDecimal betAmount, SlotGameResult result) {
         SlotGame slotGame = slotGameFactory.create(userId, betAmount, result);
-        return slotGameRepository.save(slotGame);
+        return gameResultRepository.save(slotGame);
     }
 
     /**
@@ -40,7 +40,7 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
      */
     @Override
     public List<SlotGame> getAllGames() {
-        return slotGameRepository.findAll();
+        return gameResultRepository.findAll();
     }
 
     /**
@@ -48,7 +48,7 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
      */
     @Override
     public List<SlotGame> getGamesByUser(Long userId) {
-        return slotGameRepository.findByUserId(userId);
+        return gameResultRepository.findByUserId(userId);
     }
 
     /**
@@ -56,7 +56,7 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
      */
     @Override
     public Optional<SlotGame> getGame(Long gameId) {
-        return slotGameRepository.findById(gameId);
+        return gameResultRepository.findById(gameId);
     }
 
     /**
@@ -64,8 +64,8 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
      */
     @Override
     public Optional<SlotGame> deleteGame(Long gameId) {
-        return slotGameRepository.findById(gameId).map(slotGame -> {
-            slotGameRepository.delete(slotGame);
+        return gameResultRepository.findById(gameId).map(slotGame -> {
+            gameResultRepository.delete(slotGame);
             return slotGame;
         });
     }
