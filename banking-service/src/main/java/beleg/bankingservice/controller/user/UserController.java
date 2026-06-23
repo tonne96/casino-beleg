@@ -1,6 +1,8 @@
 package beleg.bankingservice.controller.user;
 
 import beleg.bankingservice.handler.user.UserHandler;
+import beleg.bankingservice.view.BalanceAdjustRequest;
+import beleg.bankingservice.view.DeletedUserView;
 import beleg.bankingservice.view.UserRequest;
 import beleg.bankingservice.view.UserView;
 import jakarta.validation.Valid;
@@ -70,11 +72,23 @@ public class UserController implements IUserController {
 
     /**
      * DELETE /casino/bank/api/user/{user_id}
-     * Löscht einen User. Gibt den gelöschten User zurück (ohne ID)
+     * Löscht einen User. Gibt den gelöschten User zurück (ohne ID laut Spec)
      */
     @Override
-    public ResponseEntity<UserView> deleteUser(Long user_id) {
+    public ResponseEntity<DeletedUserView> deleteUser(Long user_id) {
         return userHandler.deleteUser(user_id)
+                .map(user -> ResponseEntity.ok(DeletedUserView.from(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * PUT /casino/bank/api/user/{user_id}/balance/adjust
+     * Passt den Kontostand an (positiv oder negativ).
+     * Wird vom Transaction-Subdomain via HTTP-Self-Call aufgerufen.
+     */
+    @Override
+    public ResponseEntity<UserView> adjustBalance(Long user_id, BalanceAdjustRequest request) {
+        return userHandler.adjustBalance(user_id, request.amount())
                 .map(user -> ResponseEntity.ok(UserView.from(user)))
                 .orElse(ResponseEntity.notFound().build());
     }

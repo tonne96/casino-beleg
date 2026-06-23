@@ -1,5 +1,6 @@
 package beleg.bankingservice.controller.transaction;
 
+import beleg.bankingservice.view.DeletedTransactionView;
 import beleg.bankingservice.view.TransactionRequest;
 import beleg.bankingservice.view.TransactionView;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public interface ITransactionController {
             @Valid @RequestBody TransactionRequest request);
 
     @DeleteMapping("/transaction/{transaction_id}")
-    ResponseEntity<TransactionView> deleteTransaction(@PathVariable Long transaction_id);
+    ResponseEntity<DeletedTransactionView> deleteTransaction(@PathVariable Long transaction_id);
 
 
 }

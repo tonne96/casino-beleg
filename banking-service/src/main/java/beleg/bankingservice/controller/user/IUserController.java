@@ -1,5 +1,7 @@
 package beleg.bankingservice.controller.user;
 
+import beleg.bankingservice.view.BalanceAdjustRequest;
+import beleg.bankingservice.view.DeletedUserView;
 import beleg.bankingservice.view.UserRequest;
 import beleg.bankingservice.view.UserView;
 import jakarta.validation.Valid;
@@ -26,7 +28,7 @@ public interface IUserController {
             @Valid @RequestBody UserRequest request);
 
     @DeleteMapping("/user/{user_id}")
-    ResponseEntity<UserView> deleteUser(@PathVariable Long user_id);
+    ResponseEntity<DeletedUserView> deleteUser(@PathVariable Long user_id);
 
     @PostMapping("/user/{user_id}/deposit/{amount}/{decimals}")
     ResponseEntity<UserView> deposit(
@@ -34,4 +36,8 @@ public interface IUserController {
             @PathVariable long amount,
             @PathVariable int decimals);
 
+    @PutMapping("/user/{user_id}/balance/adjust")
+    ResponseEntity<UserView> adjustBalance(
+            @PathVariable Long user_id,
+            @Valid @RequestBody BalanceAdjustRequest request);
 }

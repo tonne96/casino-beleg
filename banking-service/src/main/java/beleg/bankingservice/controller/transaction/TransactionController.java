@@ -1,34 +1,26 @@
 package beleg.bankingservice.controller.transaction;
 
 import beleg.bankingservice.handler.transaction.TransactionHandler;
-import beleg.bankingservice.handler.user.UserHandler;
+import beleg.bankingservice.view.DeletedTransactionView;
 import beleg.bankingservice.view.TransactionRequest;
 import beleg.bankingservice.view.TransactionView;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
-// Controller nimmt HTTP-Requests von außen etgegen und gibt HTTP-Responses zurück
-
 @RestController
-public class TransactionController implements ITransactionController{
+public class TransactionController implements ITransactionController {
 
-    // dependency injection von handler
     private final TransactionHandler transactionHandler;
-    private final UserHandler userHandler;
 
-    public TransactionController(TransactionHandler transactionHandler, UserHandler userHandler) {
+    public TransactionController(TransactionHandler transactionHandler) {
         this.transactionHandler = transactionHandler;
-        this.userHandler = userHandler;
     }
 
     /**
      * GET /casino/bank/api/transactions
-     * Liefert alle Transaktionen
      */
     @Override
     public ResponseEntity<List<TransactionView>> getAllTransactions() {
@@ -41,38 +33,26 @@ public class TransactionController implements ITransactionController{
 
     /**
      * GET /casino/bank/api/transactions/user/{id}
-     * Liefert alle Transaktionen eines Users
+     * Leeres Optional vom Handler = User nicht gefunden → 404
      */
     @Override
     public ResponseEntity<List<TransactionView>> getTransactionsByUser(Long id) {
-        // Prüfen ob User existiert → 404 wenn nicht
-        if (userHandler.getUser(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        List<TransactionView> transactions = transactionHandler.getTransactionsByUser(id)
-                .stream()
-                .map(TransactionView::from)
-                .toList();
-        return ResponseEntity.ok(transactions);
+        return transactionHandler.getTransactionsByUser(id)
+                .map(list -> ResponseEntity.ok(list.stream().map(TransactionView::from).toList()))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * POST /casino/bank/api/transaction/user/{user_id}
-     * Legt eine neue Transaktion an und passt den Kontostand an
+     * Leeres Optional vom Handler = User nicht gefunden → 404
      */
     @Override
-    public ResponseEntity<TransactionView> createTransaction(
-            Long user_id,
-            TransactionRequest request) {
-        // User muss existieren
-        if (userHandler.getUser(user_id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<TransactionView> createTransaction(Long user_id, TransactionRequest request) {
         try {
-            // Transaktion speichern und Kontostand in einem Vorgang anpassen
-            var transaction = transactionHandler.createTransaction(
-                    request.invoicing_party(), user_id, request.amount());
-            return ResponseEntity.status(HttpStatus.CREATED).body(TransactionView.from(transaction));
+            return transactionHandler.createTransaction(
+                            request.invoicing_party(), user_id, request.amount())
+                    .map(t -> ResponseEntity.status(HttpStatus.CREATED).body(TransactionView.from(t)))
+                    .orElse(ResponseEntity.notFound().build());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -80,15 +60,11 @@ public class TransactionController implements ITransactionController{
 
     /**
      * PUT /casino/bank/api/transaction/{transaction_id}
-     * Aktualisiert eine bestehende Transaktion
      */
     @Override
-    public ResponseEntity<TransactionView> updateTransaction(
-            Long transaction_id,
-            TransactionRequest request) {
-        // User muss existieren
-        if (userHandler.getUser(request.user()).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<TransactionView> updateTransaction(Long transaction_id, TransactionRequest request) {
+        if (request.user() == null) {
+            return ResponseEntity.badRequest().build();
         }
         try {
             return transactionHandler.updateTransaction(
@@ -105,12 +81,12 @@ public class TransactionController implements ITransactionController{
 
     /**
      * DELETE /casino/bank/api/transaction/{transaction_id}
-     * Löscht eine Transaktion
+     * Gibt die Transaktion ohne ID zurück (laut Spec)
      */
     @Override
-    public ResponseEntity<TransactionView> deleteTransaction(Long transaction_id) {
+    public ResponseEntity<DeletedTransactionView> deleteTransaction(Long transaction_id) {
         return transactionHandler.deleteTransaction(transaction_id)
-                .map(t -> ResponseEntity.ok(TransactionView.from(t)))
+                .map(t -> ResponseEntity.ok(DeletedTransactionView.from(t)))
                 .orElse(ResponseEntity.notFound().build());
     }
 }

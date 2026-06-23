@@ -11,7 +11,6 @@ public record TransactionRequest(
         @NotBlank(message = "invoicing_party darf nicht leer sein")
         String invoicing_party,
 
-        @NotNull(message = "user darf nicht null sein")
         Long user,
 
         @NotNull(message = "amount darf nicht null sein")

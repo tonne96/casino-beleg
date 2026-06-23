@@ -1,85 +1,82 @@
 package beleg.bankingservice.handler.transaction;
 
 import beleg.bankingservice.model.Transaction;
-import beleg.bankingservice.model.User;
 import beleg.bankingservice.repository.TransactionRepository;
-import beleg.bankingservice.repository.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
+import beleg.bankingservice.view.BalanceAdjustRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Handler = Geschäftslogik
- * Controller fragt Handler, Handler kennt Repository aber nicht HTTP und JSON
- */
 @Service
 public class TransactionHandler implements ITransactionHandler {
 
     private final TransactionRepository transactionRepository;
-    private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
 
-    public TransactionHandler(TransactionRepository transactionRepository, UserRepository userRepository) {
+    @Value("${banking.self.url:http://localhost:8080}")
+    private String selfUrl;
+
+    public TransactionHandler(TransactionRepository transactionRepository, RestTemplate restTemplate) {
         this.transactionRepository = transactionRepository;
-        this.userRepository = userRepository;
+        this.restTemplate = restTemplate;
     }
 
-    /**
-     * Liefert alle Transaktionen.
-     */
     @Override
     public List<Transaction> getAllTransactions() {
         return transactionRepository.findAll();
     }
 
     /**
-     * Liefert alle Transaktionen eines Users.
-     *
-     * @param userId User-ID
-     * @return Liste der Transaktionen (leer wenn keine vorhanden)
+     * Prüft via HTTP-Self-Call ob der User existiert.
+     * Leere Liste wenn User keine Transaktionen hat, leeres Optional wenn User fehlt.
      */
     @Override
-    public List<Transaction> getTransactionsByUser(Long userId) {
-        return transactionRepository.findByUserId(userId);
+    public Optional<List<Transaction>> getTransactionsByUser(Long userId) {
+        if (!userExists(userId)) {
+            return Optional.empty();
+        }
+        return Optional.of(transactionRepository.findByUserId(userId));
     }
 
-    /**
-     * Liefert eine einzelne Transaktion anhand ihrer ID.
-     */
     @Override
     public Optional<Transaction> getTransaction(Long id) {
         return transactionRepository.findById(id);
     }
 
     /**
-     * Legt eine neue Transaktion an.
+     * Legt eine neue Transaktion an und passt den Kontostand des Users an.
      *
-     * @param invoicingParty Name des aufrufenden Game-Services
-     * @param userId         betroffener User
-     * @param amount         Betrag (positiv oder negativ)
-     * @return gespeicherte Transaktion mit generierter ID
+     * User-Zugriff erfolgt via HTTP-Self-Call (Vertikal-Slice-Architektur:
+     * Transaction-Subdomain darf User-Subdomain nicht direkt importieren).
+     *
+     * @return leeres Optional wenn User nicht existiert
      * @throws IllegalArgumentException wenn invoicingParty unbekannt ist
      */
     @Override
     @Transactional
-    public Transaction createTransaction(String invoicingParty, Long userId, BigDecimal amount) {
+    public Optional<Transaction> createTransaction(String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User existiert nicht: " + userId));
 
-        user.adjustBalance(amount);
+        if (!userExists(userId)) {
+            return Optional.empty();
+        }
 
         Transaction transaction = new Transaction(party, userId, amount);
-        return transactionRepository.save(transaction);
+        Transaction saved = transactionRepository.save(transaction);
+
+        // Kontostand via HTTP-Self-Call anpassen (User-Subdomain bleibt isoliert)
+        adjustUserBalance(userId, amount);
+
+        return Optional.of(saved);
     }
 
-    /**
-     * Aktualisiert eine bestehende Transaktion.
-     *
-     * @return Optional mit aktualisierter Transaktion oder leer wenn nicht gefunden
-     */
     @Override
     public Optional<Transaction> updateTransaction(Long id, String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
@@ -89,11 +86,6 @@ public class TransactionHandler implements ITransactionHandler {
         });
     }
 
-    /**
-     * Löscht eine Transaktion anhand ihrer ID.
-     *
-     * @return Optional mit der gelöschten Transaktion oder leer wenn nicht gefunden
-     */
     @Override
     public Optional<Transaction> deleteTransaction(Long id) {
         return transactionRepository.findById(id).map(transaction -> {
@@ -104,19 +96,38 @@ public class TransactionHandler implements ITransactionHandler {
 
     // ── Private Hilfsmethoden ────────────────────────────
 
-    /**
-     * Parst den String-Namen zu einem InvoicingParty-Enum.
-     * Wirft IllegalArgumentException wenn der Name unbekannt ist —
-     * der Controller gibt dann 400 zurück.
-     */
     private Transaction.InvoicingParty parseInvoicingParty(String name) {
         try {
             return Transaction.InvoicingParty.valueOf(name.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new IllegalArgumentException(
-                    "Unbekannter Rechnungssteller: '" + name + "'. " +
-                            "Erlaubt: ROULETTE, SLOTS"
+                    "Unbekannter Rechnungssteller: '" + name + "'. Erlaubt: ROULETTE, SLOTS"
             );
         }
+    }
+
+    /**
+     * HTTP-Self-Call: prüft ob der User existiert (GET /casino/bank/api/user/{id}).
+     */
+    private boolean userExists(Long userId) {
+        try {
+            restTemplate.getForEntity(selfUrl + "/casino/bank/api/user/" + userId, Object.class);
+            return true;
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return false;
+            }
+            throw e;
+        }
+    }
+
+    /**
+     * HTTP-Self-Call: passt den Kontostand an (PUT /casino/bank/api/user/{id}/balance/adjust).
+     */
+    private void adjustUserBalance(Long userId, BigDecimal amount) {
+        restTemplate.put(
+                selfUrl + "/casino/bank/api/user/" + userId + "/balance/adjust",
+                new BalanceAdjustRequest(amount)
+        );
     }
 }

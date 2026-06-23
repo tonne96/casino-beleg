@@ -1,6 +1,5 @@
 package beleg.bankingservice.model;
 
-import beleg.bankingservice.controller.user.IUserController;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;

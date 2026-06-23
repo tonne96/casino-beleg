@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Globale Fehlerbehandlung für alle Controller.
@@ -47,6 +48,21 @@ public class GlobalExceptionHandler {
      * - first_name fehlt im Request Body
      * - last_name ist leer
      */
+    /**
+     * Fängt ungültige Pfad- oder Query-Parameter ab → 400 Bad Request
+     * Beispiel: /deposit/abc/50 wirft diese Exception weil "abc" kein long ist
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        400,
+                        "Bad Request",
+                        "Ungültiger Wert für Parameter '" + ex.getName() + "': " + ex.getValue()
+                ));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
         // Alle Fehlermeldungen aus dem Request Body sammeln
