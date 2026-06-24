@@ -34,15 +34,20 @@ public class TransactionHandler implements ITransactionHandler {
     }
 
     /**
-     * Prüft via HTTP-Self-Call ob der User existiert.
-     * Leere Liste wenn User keine Transaktionen hat, leeres Optional wenn User fehlt.
+     * Prüft zuerst via HTTP-Self-Call ob der User existiert.
+     * Leeres Optional = User nicht gefunden.
+     * Leere Liste im Optional = User existiert, hat aber keine Transaktionen.
      */
     @Override
     public Optional<List<Transaction>> getTransactionsByUser(Long userId) {
-        if (!userExists(userId)) {
+        boolean exists = userExists(userId);
+
+        if (!exists) {
             return Optional.empty();
         }
-        return Optional.of(transactionRepository.findByUserId(userId));
+
+        List<Transaction> transactions = transactionRepository.findByUserId(userId);
+        return Optional.of(transactions);
     }
 
     @Override
@@ -56,15 +61,17 @@ public class TransactionHandler implements ITransactionHandler {
      * User-Zugriff erfolgt via HTTP-Self-Call (Vertikal-Slice-Architektur:
      * Transaction-Subdomain darf User-Subdomain nicht direkt importieren).
      *
-     * @return leeres Optional wenn User nicht existiert
-     * @throws IllegalArgumentException wenn invoicingParty unbekannt ist
+     * Leeres Optional = User nicht gefunden.
+     * IllegalArgumentException = ungültige InvoicingParty.
      */
     @Override
     @Transactional
     public Optional<Transaction> createTransaction(String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
 
-        if (!userExists(userId)) {
+        boolean exists = userExists(userId);
+
+        if (!exists) {
             return Optional.empty();
         }
 
@@ -80,18 +87,30 @@ public class TransactionHandler implements ITransactionHandler {
     @Override
     public Optional<Transaction> updateTransaction(Long id, String invoicingParty, Long userId, BigDecimal amount) {
         Transaction.InvoicingParty party = parseInvoicingParty(invoicingParty);
-        return transactionRepository.findById(id).map(transaction -> {
-            transaction.update(party, userId, amount);
-            return transactionRepository.save(transaction);
-        });
+
+        Optional<Transaction> found = transactionRepository.findById(id);
+
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Transaction transaction = found.get();
+        transaction.update(party, userId, amount);
+        Transaction saved = transactionRepository.save(transaction);
+        return Optional.of(saved);
     }
 
     @Override
     public Optional<Transaction> deleteTransaction(Long id) {
-        return transactionRepository.findById(id).map(transaction -> {
-            transactionRepository.delete(transaction);
-            return transaction;
-        });
+        Optional<Transaction> found = transactionRepository.findById(id);
+
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Transaction transaction = found.get();
+        transactionRepository.delete(transaction);
+        return Optional.of(transaction);
     }
 
     // ── Private Hilfsmethoden ────────────────────────────
