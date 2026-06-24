@@ -51,11 +51,24 @@ public class SlotGameHandler implements ISlotGameHandler {
         int multiplier = calculatePayoutMultiplier(slotStates);
         boolean winning = multiplier > 0;
 
-        BigDecimal amount = winning
-                ? betAmount.multiply(BigDecimal.valueOf(multiplier))
-                : betAmount.negate();
+        BigDecimal amount = calculateNetAmount(betAmount, multiplier);
 
         return new SlotGameResult(winning, amount, slotStates, multiplier);
+    }
+
+    /**
+     * Berechnet den Netto-Betrag fuer Banking und Response.
+     *
+     * Der Einsatz wird bei jeder Runde zuerst riskiert. Bei einem Gewinn wird
+     * die Auszahlung dagegen gerechnet:
+     *  - Verlust: 0x Auszahlung - 1x Einsatz = -1x Einsatz
+     *  - Zwei gleiche: 1x Auszahlung - 1x Einsatz = 0
+     *  - Drei gleiche: 3x Auszahlung - 1x Einsatz = +2x Einsatz
+     *  - Jackpot: 10x Auszahlung - 1x Einsatz = +9x Einsatz
+     */
+    private BigDecimal calculateNetAmount(BigDecimal betAmount, int payoutMultiplier) {
+        BigDecimal payoutAmount = betAmount.multiply(BigDecimal.valueOf(payoutMultiplier));
+        return payoutAmount.subtract(betAmount);
     }
 
     private List<SlotSymbol> generateSlotStates() {

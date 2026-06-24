@@ -5,6 +5,7 @@ import beleg.slotsservice.handler.stats.ISlotStatsHandler;
 import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.view.SlotGameView;
 import beleg.slotsservice.view.SlotsStatsView;
+import beleg.slotsservice.view.SlotsUserStatsView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,22 +60,21 @@ public class SlotsStatsController {
     /**
      * GET /casino/slots/api/stats/user/{user_id}
      *
-     * Liefert alle gespeicherten Slot-Runden eines Users.
+     * Liefert die zusammengefasste Statistik eines Users.
      */
     @GetMapping("/stats/user/{user_id}")
-    public ResponseEntity<List<SlotGameView>> getGamesByUser(@PathVariable Long user_id) {
+    public ResponseEntity<SlotsUserStatsView> getUserStats(@PathVariable Long user_id) {
         if (user_id == null || user_id <= 0) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<SlotGame> userGames = slotGameHistoryHandler.getGamesByUser(user_id);
+        Optional<SlotsUserStatsView> userStats = slotStatsHandler.getUserStats(user_id);
 
-        List<SlotGameView> games = new ArrayList<>();
-        for (SlotGame game : userGames) {
-            games.add(SlotGameView.from(game));
+        if (userStats.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(games);
+        return ResponseEntity.ok(userStats.get());
     }
 
     /**
