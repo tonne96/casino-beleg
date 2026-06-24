@@ -3,11 +3,14 @@ package beleg.slotsservice.handler.stats;
 import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.repository.IGameResultRepository;
 import beleg.slotsservice.view.SlotsStatsView;
+import beleg.slotsservice.view.SlotsUserStatsView;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * SlotStatsHandler = Standard-Implementierung fuer Slot-Statistiken.
@@ -17,8 +20,6 @@ import java.util.List;
  */
 @Service
 public class SlotStatsHandler implements ISlotStatsHandler {
-
-    private static final int JACKPOT_MULTIPLIER = 10;
 
     private final IGameResultRepository gameResultRepository;
 
@@ -33,59 +34,77 @@ public class SlotStatsHandler implements ISlotStatsHandler {
     public SlotsStatsView getStats() {
         List<SlotGame> games = gameResultRepository.findAll();
 
-        long totalGames = games.size();
-        long totalWins = 0;
-        long jackpotCount = 0;
-        BigDecimal totalBetAmount = BigDecimal.ZERO;
-        BigDecimal totalResultAmount = BigDecimal.ZERO;
+        Set<Long> clients = new HashSet<>();
+        BigDecimal totalTurnover = BigDecimal.ZERO;
+        BigDecimal totalCashOut = BigDecimal.ZERO;
 
         for (SlotGame game : games) {
-            totalBetAmount = totalBetAmount.add(game.getBetAmount());
-            totalResultAmount = totalResultAmount.add(game.getAmount());
-
-            if (game.isWinning()) {
-                totalWins++;
-            }
-            if (game.getPayoutMultiplier() == JACKPOT_MULTIPLIER) {
-                jackpotCount++;
-            }
+            clients.add(game.getUserId());
+            totalTurnover = totalTurnover.add(game.getBetAmount());
+            totalCashOut = totalCashOut.add(calculateCashOut(game));
         }
 
-        long totalLosses = totalGames - totalWins;
+        BigDecimal totalProfit = totalTurnover.subtract(totalCashOut);
 
         return new SlotsStatsView(
-                totalGames,
-                totalWins,
-                totalLosses,
-                jackpotCount,
-                totalBetAmount,
-                totalResultAmount,
-                calculateAverageBetAmount(totalBetAmount, totalGames),
-                calculateWinRatePercent(totalWins, totalGames)
+                clients.size(),
+                games.size(),
+                totalProfit,
+                totalCashOut,
+                totalTurnover
         );
     }
 
     /**
-     * Durchschnittlicher Einsatz pro Runde.
-     * Bei 0 Spielen wird 0 zurueckgegeben, damit keine Division durch 0 passiert.
+     * Berechnet die zusammengefasste Statistik fuer einen einzelnen User.
      */
-    private BigDecimal calculateAverageBetAmount(BigDecimal totalBetAmount, long totalGames) {
-        if (totalGames == 0) {
-            return BigDecimal.ZERO;
+    @Override
+    public Optional<SlotsUserStatsView> getUserStats(Long userId) {
+        List<SlotGame> games = gameResultRepository.findByUserId(userId);
+
+        if (games.isEmpty()) {
+            return Optional.empty();
         }
-        return totalBetAmount.divide(BigDecimal.valueOf(totalGames), 2, RoundingMode.HALF_UP);
+
+        BigDecimal totalWinnings = BigDecimal.ZERO;
+        BigDecimal totalLosses = BigDecimal.ZERO;
+        BigDecimal totalTurnover = BigDecimal.ZERO;
+
+        for (SlotGame game : games) {
+            BigDecimal cashOut = calculateCashOut(game);
+
+            totalWinnings = totalWinnings.add(cashOut);
+            totalTurnover = totalTurnover.add(game.getBetAmount());
+
+            if (!game.isWinning()) {
+                totalLosses = totalLosses.add(game.getBetAmount());
+            }
+        }
+
+        BigDecimal totalClientProfit = totalWinnings.subtract(totalTurnover);
+        BigDecimal totalHouseProfit = totalTurnover.subtract(totalWinnings);
+
+        return Optional.of(new SlotsUserStatsView(
+                userId,
+                games.size(),
+                totalWinnings,
+                totalLosses,
+                totalClientProfit,
+                totalTurnover,
+                totalHouseProfit
+        ));
     }
 
     /**
-     * Gewinnquote in Prozent.
-     * Beispiel: 3 Gewinne bei 10 Spielen ergeben 30.00 Prozent.
+     * Cash-Out ist die Brutto-Auszahlung des Automaten.
+     *
+     * Beispiel bei Einsatz 10:
+     *  - Verlust: payoutMultiplier 0  -> Cash-Out 0
+     *  - Einsatz zurueck: 1           -> Cash-Out 10
+     *  - Drei gleiche: 3              -> Cash-Out 30
+     *  - Jackpot: 10                  -> Cash-Out 100
      */
-    private BigDecimal calculateWinRatePercent(long totalWins, long totalGames) {
-        if (totalGames == 0) {
-            return BigDecimal.ZERO;
-        }
-        return BigDecimal.valueOf(totalWins)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(totalGames), 2, RoundingMode.HALF_UP);
+    private BigDecimal calculateCashOut(SlotGame game) {
+        return game.getBetAmount().multiply(BigDecimal.valueOf(game.getPayoutMultiplier()));
     }
 }

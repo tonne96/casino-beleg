@@ -5,16 +5,12 @@ import java.math.BigDecimal;
 /**
  * View-DTO fuer die zusammengefassten Slot-Statistiken.
  *
- * Diese Antwort beschreibt nicht eine einzelne Runde, sondern den Gesamtzustand
- * aller gespeicherten Slot-Runden in der Slots-Datenbank.
+ * Die Feldnamen orientieren sich direkt an der Belegvorgabe.
  */
 public record SlotsStatsView(
-        long totalGames,
-        long totalWins,
-        long totalLosses,
-        long jackpotCount,
-        BigDecimal totalBetAmount,
-        BigDecimal totalResultAmount,
-        BigDecimal averageBetAmount,
-        BigDecimal winRatePercent
+        long total_client_count,
+        long total_games_count,
+        BigDecimal total_profit,
+        BigDecimal total_cash_out,
+        BigDecimal total_turnover
 ) {}
