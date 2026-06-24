@@ -22,8 +22,10 @@ public record SlotGameResult(
         if (slotStates == null || slotStates.size() != 3) {
             throw new IllegalArgumentException("Eine Slot-Runde braucht genau drei Symbole.");
         }
-        if (slotStates.stream().anyMatch(symbol -> symbol == null)) {
-            throw new IllegalArgumentException("Slot-Symbole dürfen nicht null sein.");
+        for (SlotSymbol symbol : slotStates) {
+            if (symbol == null) {
+                throw new IllegalArgumentException("Slot-Symbole dürfen nicht null sein.");
+            }
         }
 
         // Defensive Kopie: Von außen kann die Ergebnisliste danach nicht verändert werden.

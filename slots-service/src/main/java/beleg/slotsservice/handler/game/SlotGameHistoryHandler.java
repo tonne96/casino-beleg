@@ -64,9 +64,14 @@ public class SlotGameHistoryHandler implements ISlotGameHistoryHandler {
      */
     @Override
     public Optional<SlotGame> deleteGame(Long gameId) {
-        return gameResultRepository.findById(gameId).map(slotGame -> {
-            gameResultRepository.delete(slotGame);
-            return slotGame;
-        });
+        Optional<SlotGame> found = gameResultRepository.findById(gameId);
+
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+
+        SlotGame slotGame = found.get();
+        gameResultRepository.delete(slotGame);
+        return Optional.of(slotGame);
     }
 }
