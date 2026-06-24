@@ -40,8 +40,9 @@ public class SlotInfoHandler implements ISlotInfoHandler {
                         "Jede Walze zeigt eines der erlaubten Slot-Symbole.",
                         "Drei SEVEN ergeben den Jackpot.",
                         "Drei gleiche Symbole ergeben einen normalen Gewinn.",
-                        "Zwei gleiche Symbole ergeben einen kleinen Gewinn.",
-                        "Drei unterschiedliche Symbole ergeben einen Verlust."
+                        "Zwei gleiche Symbole zahlen den Einsatz zurueck.",
+                        "Drei unterschiedliche Symbole ergeben einen Verlust.",
+                        "Der Betrag im Spielergebnis ist der Netto-Betrag nach Einsatz."
                 ),
                 getPayoutRules()
         );
@@ -104,10 +105,10 @@ public class SlotInfoHandler implements ISlotInfoHandler {
 
     private List<SlotPayoutRuleView> getPayoutRules() {
         return List.of(
-                new SlotPayoutRuleView("SEVEN + SEVEN + SEVEN", JACKPOT_MULTIPLIER, "Jackpot: Einsatz mal 10"),
-                new SlotPayoutRuleView("Drei gleiche Symbole", THREE_EQUAL_MULTIPLIER, "Normaler Gewinn: Einsatz mal 3"),
-                new SlotPayoutRuleView("Zwei gleiche Symbole", TWO_EQUAL_MULTIPLIER, "Kleiner Gewinn: Einsatz mal 1"),
-                new SlotPayoutRuleView("Drei unterschiedliche Symbole", LOSS_MULTIPLIER, "Verlust: Einsatz wird negativ gebucht")
+                new SlotPayoutRuleView("SEVEN + SEVEN + SEVEN", JACKPOT_MULTIPLIER, "Auszahlung: Einsatz mal 10, netto plus 9x Einsatz"),
+                new SlotPayoutRuleView("Drei gleiche Symbole", THREE_EQUAL_MULTIPLIER, "Auszahlung: Einsatz mal 3, netto plus 2x Einsatz"),
+                new SlotPayoutRuleView("Zwei gleiche Symbole", TWO_EQUAL_MULTIPLIER, "Auszahlung: Einsatz mal 1, netto 0"),
+                new SlotPayoutRuleView("Drei unterschiedliche Symbole", LOSS_MULTIPLIER, "Auszahlung: 0, netto minus Einsatz")
         );
     }
 
