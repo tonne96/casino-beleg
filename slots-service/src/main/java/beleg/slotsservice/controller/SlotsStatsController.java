@@ -2,12 +2,15 @@ package beleg.slotsservice.controller;
 
 import beleg.slotsservice.handler.game.ISlotGameHistoryHandler;
 import beleg.slotsservice.handler.stats.ISlotStatsHandler;
+import beleg.slotsservice.model.SlotGame;
 import beleg.slotsservice.view.SlotGameView;
 import beleg.slotsservice.view.SlotsStatsView;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller fuer gespeicherte Slot-Runden.
@@ -43,10 +46,12 @@ public class SlotsStatsController {
      */
     @GetMapping("/stats/games")
     public ResponseEntity<List<SlotGameView>> getAllGames() {
-        List<SlotGameView> games = slotGameHistoryHandler.getAllGames()
-                .stream()
-                .map(SlotGameView::from)
-                .toList();
+        List<SlotGame> allGames = slotGameHistoryHandler.getAllGames();
+
+        List<SlotGameView> games = new ArrayList<>();
+        for (SlotGame game : allGames) {
+            games.add(SlotGameView.from(game));
+        }
 
         return ResponseEntity.ok(games);
     }
@@ -62,10 +67,12 @@ public class SlotsStatsController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<SlotGameView> games = slotGameHistoryHandler.getGamesByUser(user_id)
-                .stream()
-                .map(SlotGameView::from)
-                .toList();
+        List<SlotGame> userGames = slotGameHistoryHandler.getGamesByUser(user_id);
+
+        List<SlotGameView> games = new ArrayList<>();
+        for (SlotGame game : userGames) {
+            games.add(SlotGameView.from(game));
+        }
 
         return ResponseEntity.ok(games);
     }
@@ -81,9 +88,15 @@ public class SlotsStatsController {
             return ResponseEntity.badRequest().build();
         }
 
-        return slotGameHistoryHandler.getGame(game_id)
-                .map(game -> ResponseEntity.ok(SlotGameView.from(game)))
-                .orElse(ResponseEntity.notFound().build());
+        Optional<SlotGame> found = slotGameHistoryHandler.getGame(game_id);
+
+        if (found.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        SlotGame game = found.get();
+        SlotGameView view = SlotGameView.from(game);
+        return ResponseEntity.ok(view);
     }
 
     /**
@@ -97,8 +110,14 @@ public class SlotsStatsController {
             return ResponseEntity.badRequest().build();
         }
 
-        return slotGameHistoryHandler.deleteGame(game_id)
-                .map(game -> ResponseEntity.ok(SlotGameView.from(game)))
-                .orElse(ResponseEntity.notFound().build());
+        Optional<SlotGame> deleted = slotGameHistoryHandler.deleteGame(game_id);
+
+        if (deleted.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        SlotGame game = deleted.get();
+        SlotGameView view = SlotGameView.from(game);
+        return ResponseEntity.ok(view);
     }
 }
