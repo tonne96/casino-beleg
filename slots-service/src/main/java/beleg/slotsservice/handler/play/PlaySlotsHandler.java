@@ -54,8 +54,37 @@ public class PlaySlotsHandler implements IPlaySlotsHandler {
 
         bankingClient.createSlotsTransaction(request.user(), result.amount());
 
-        SlotGame savedGame = slotGameHistoryHandler.saveGame(request.user(), request.betAmount(), result);
+        SlotGame savedGame = saveGameOrCompensateBanking(request.user(), request.betAmount(), result);
         return SlotsPlayView.from(savedGame);
+    }
+
+    /**
+     * Speichert die Runde nach der Banking-Buchung.
+     *
+     * Da Banking- und Slots-Datenbank keine gemeinsame Transaktion besitzen,
+     * wird eine erfolgreiche Banking-Buchung bei einem Speicherfehler durch
+     * den exakten Gegenbetrag kompensiert (Saga/Compensating Transaction).
+     */
+    private SlotGame saveGameOrCompensateBanking(
+            Long userId,
+            BigDecimal betAmount,
+            SlotGameResult result) {
+        try {
+            return slotGameHistoryHandler.saveGame(userId, betAmount, result);
+        } catch (RuntimeException saveException) {
+            compensateBanking(userId, result.amount(), saveException);
+            throw saveException;
+        }
+    }
+
+    private void compensateBanking(Long userId, BigDecimal bookedAmount, RuntimeException saveException) {
+        try {
+            bankingClient.createSlotsTransaction(userId, bookedAmount.negate());
+        } catch (RuntimeException compensationException) {
+            // Der Speicherfehler bleibt die Hauptursache; der fehlgeschlagene
+            // Kompensationsversuch geht trotzdem nicht in der Fehlerkette verloren.
+            saveException.addSuppressed(compensationException);
+        }
     }
 
     private void validateRequest(PlaySlotsRequest request) {

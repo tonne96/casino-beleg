@@ -165,6 +165,62 @@ class PlaySlotsHandlerTest {
     }
 
     @Test
+    void playCompensatesBankingWhenSavingGameFails() {
+        PlaySlotsRequest request = new PlaySlotsRequest(1L, BigDecimal.TEN);
+        BankingUserView user = new BankingUserView(1L, "Dat", "Tran", BigDecimal.valueOf(100));
+        SlotGameResult gameResult = new SlotGameResult(
+                false,
+                BigDecimal.TEN.negate(),
+                List.of(SlotSymbol.CHERRY, SlotSymbol.LEMON, SlotSymbol.BAR),
+                0
+        );
+        RuntimeException saveException = new RuntimeException("Slots-Datenbank nicht erreichbar.");
+
+        when(bankingClient.getUser(1L)).thenReturn(user);
+        when(slotGameHandler.play(BigDecimal.TEN)).thenReturn(gameResult);
+        when(slotGameHistoryHandler.saveGame(1L, BigDecimal.TEN, gameResult)).thenThrow(saveException);
+
+        RuntimeException result = assertThrows(RuntimeException.class, () -> playSlotsHandler.play(request));
+
+        assertSame(saveException, result);
+
+        InOrder inOrder = inOrder(bankingClient, slotGameHistoryHandler);
+        inOrder.verify(bankingClient).getUser(1L);
+        inOrder.verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN.negate());
+        inOrder.verify(slotGameHistoryHandler).saveGame(1L, BigDecimal.TEN, gameResult);
+        inOrder.verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN);
+    }
+
+    @Test
+    void playPreservesSaveFailureWhenBankingCompensationAlsoFails() {
+        PlaySlotsRequest request = new PlaySlotsRequest(1L, BigDecimal.TEN);
+        BankingUserView user = new BankingUserView(1L, "Dat", "Tran", BigDecimal.valueOf(100));
+        SlotGameResult gameResult = new SlotGameResult(
+                false,
+                BigDecimal.TEN.negate(),
+                List.of(SlotSymbol.CHERRY, SlotSymbol.LEMON, SlotSymbol.BAR),
+                0
+        );
+        RuntimeException saveException = new RuntimeException("Slots-Datenbank nicht erreichbar.");
+        BankingCommunicationException compensationException =
+                new BankingCommunicationException("Gegenbuchung fehlgeschlagen.", null);
+
+        when(bankingClient.getUser(1L)).thenReturn(user);
+        when(slotGameHandler.play(BigDecimal.TEN)).thenReturn(gameResult);
+        when(slotGameHistoryHandler.saveGame(1L, BigDecimal.TEN, gameResult)).thenThrow(saveException);
+        doThrow(compensationException)
+                .when(bankingClient)
+                .createSlotsTransaction(1L, BigDecimal.TEN);
+
+        RuntimeException result = assertThrows(RuntimeException.class, () -> playSlotsHandler.play(request));
+
+        assertSame(saveException, result);
+        assertArrayEquals(new Throwable[]{compensationException}, result.getSuppressed());
+        verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN.negate());
+        verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN);
+    }
+
+    @Test
     void playWithInvalidRequestFailsBeforeAnyDependencyIsCalled() {
         try {
             playSlotsHandler.play(null);
