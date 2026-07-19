@@ -1,5 +1,6 @@
 package beleg.bankingservice.controller.user;
 
+import beleg.bankingservice.handler.user.IUserHandler;
 import beleg.bankingservice.handler.user.UserHandler;
 import beleg.bankingservice.model.User;
 import beleg.bankingservice.view.BalanceAdjustRequest;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @RestController
 public class UserController implements IUserController {
 
-    private final UserHandler userHandler;
+    private final IUserHandler userHandler;
 
     public UserController(UserHandler userHandler) {
         this.userHandler = userHandler;

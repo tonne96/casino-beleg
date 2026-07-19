@@ -1,5 +1,6 @@
 package beleg.bankingservice.controller.transaction;
 
+import beleg.bankingservice.handler.transaction.ITransactionHandler;
 import beleg.bankingservice.handler.transaction.TransactionHandler;
 import beleg.bankingservice.model.Transaction;
 import beleg.bankingservice.view.DeletedTransactionView;
@@ -16,7 +17,8 @@ import java.util.Optional;
 @RestController
 public class TransactionController implements ITransactionController {
 
-    private final TransactionHandler transactionHandler;
+    // todo interface
+    private final ITransactionHandler transactionHandler;
 
     public TransactionController(TransactionHandler transactionHandler) {
         this.transactionHandler = transactionHandler;

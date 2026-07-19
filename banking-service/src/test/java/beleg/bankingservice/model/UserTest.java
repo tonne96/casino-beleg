@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,6 +16,11 @@ class UserTest {
     @BeforeEach
     void setup() {
         user = new User("first", "last");
+    }
+
+    @Test
+    void initialBalanceIsZero() {
+        assertEquals(BigDecimal.ZERO, user.getBalance());
     }
 
     @Test
@@ -36,8 +43,37 @@ class UserTest {
     }
 
     @Test
-    void adjustBalance() {
+    void adjustBalanceIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> user.adjustBalance(null));
     }
+
+    @Test
+    void adjustBalance() {
+        user.adjustBalance(BigDecimal.valueOf(10));
+        assertEquals(BigDecimal.valueOf(10), user.getBalance());
+    }
+
+
+    @Test
+    void adjustBalance_randomPositiveAmount() {
+        Random random = new Random();
+        double randomValue = random.nextDouble(1, 1000);
+        BigDecimal amount = BigDecimal.valueOf(randomValue).setScale(2, RoundingMode.HALF_UP);
+
+        user.adjustBalance(amount);
+
+        assertEquals(amount, user.getBalance());
+    }
+
+
+    @Test
+    void adjustBalance_subtractNegativeAmount() {
+        user.adjustBalance(BigDecimal.valueOf(100));
+        user.adjustBalance(BigDecimal.valueOf(-30));
+        assertEquals(BigDecimal.valueOf(70), user.getBalance());
+    }
+
+
 
     @Test
     void updateName() {
