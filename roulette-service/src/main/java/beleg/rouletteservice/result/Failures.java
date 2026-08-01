@@ -1,0 +1,14 @@
+package beleg.rouletteservice.result;
+
+public enum Failures {
+    NOT_NULL,
+    BIGGER_ZERO,
+    NOT_NEGATIVE,
+    OUT_OF_RANGE,
+    USER_NOT_FOUND,
+    GAME_NOT_FOUND,
+    INVALID_BET_TYPE,
+    BANKING_SERVICE_UNAVAILABLE,
+    INSUFFICIENT_BALANCE,
+    INCONSISTENT_ROUND_RESULT
+}
