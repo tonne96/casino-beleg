@@ -25,9 +25,17 @@ public class BankingClient implements IBankingClient {
     private final RestClient restClient;
 
     public BankingClient(@Value("${banking.service.url}") String bankingServiceUrl) {
-        this.restClient = RestClient.builder()
+        this(RestClient.builder()
                 .baseUrl(bankingServiceUrl)
-                .build();
+                .build());
+    }
+
+    /**
+     * Package-private Konstruktor fuer isolierte Client-Tests.
+     * Im echten Betrieb verwendet Spring weiterhin den oeffentlichen Konstruktor.
+     */
+    BankingClient(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     /**

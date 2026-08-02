@@ -180,9 +180,12 @@ class PlaySlotsHandlerTest {
         when(slotGameHandler.play(BigDecimal.TEN)).thenReturn(gameResult);
         when(slotGameHistoryHandler.saveGame(1L, BigDecimal.TEN, gameResult)).thenThrow(saveException);
 
-        RuntimeException result = assertThrows(RuntimeException.class, () -> playSlotsHandler.play(request));
-
-        assertSame(saveException, result);
+        try {
+            playSlotsHandler.play(request);
+            fail("Ein Speicherfehler muss an den Controller weitergegeben werden.");
+        } catch (RuntimeException e) {
+            assertSame(saveException, e);
+        }
 
         InOrder inOrder = inOrder(bankingClient, slotGameHistoryHandler);
         inOrder.verify(bankingClient).getUser(1L);
@@ -212,10 +215,13 @@ class PlaySlotsHandlerTest {
                 .when(bankingClient)
                 .createSlotsTransaction(1L, BigDecimal.TEN);
 
-        RuntimeException result = assertThrows(RuntimeException.class, () -> playSlotsHandler.play(request));
-
-        assertSame(saveException, result);
-        assertArrayEquals(new Throwable[]{compensationException}, result.getSuppressed());
+        try {
+            playSlotsHandler.play(request);
+            fail("Der urspruengliche Speicherfehler muss erhalten bleiben.");
+        } catch (RuntimeException e) {
+            assertSame(saveException, e);
+            assertArrayEquals(new Throwable[]{compensationException}, e.getSuppressed());
+        }
         verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN.negate());
         verify(bankingClient).createSlotsTransaction(1L, BigDecimal.TEN);
     }

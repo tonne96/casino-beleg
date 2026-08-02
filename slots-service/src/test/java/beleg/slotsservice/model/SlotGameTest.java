@@ -216,6 +216,49 @@ class SlotGameTest {
         }
     }
 
+    @Test
+    void createAcceptsPositiveExtremeValues() {
+        BigDecimal veryLargeAmount = new BigDecimal("99999999999999999.99");
+        LocalDateTime playedAt = LocalDateTime.of(9999, 12, 31, 23, 59, 59);
+
+        SlotGame slotGame = SlotGame.create(
+                Long.MAX_VALUE,
+                new BigDecimal("0.01"),
+                true,
+                veryLargeAmount,
+                SlotSymbol.SEVEN,
+                SlotSymbol.SEVEN,
+                SlotSymbol.SEVEN,
+                10,
+                playedAt
+        );
+
+        assertEquals(Long.MAX_VALUE, slotGame.getUserId());
+        assertEquals(new BigDecimal("0.01"), slotGame.getBetAmount());
+        assertEquals(veryLargeAmount, slotGame.getAmount());
+        assertEquals(playedAt, slotGame.getPlayedAt());
+    }
+
+    @Test
+    void createRejectsNegativePayoutMultiplier() {
+        try {
+            SlotGame.create(
+                    1L,
+                    BigDecimal.TEN,
+                    false,
+                    BigDecimal.TEN.negate(),
+                    SlotSymbol.CHERRY,
+                    SlotSymbol.LEMON,
+                    SlotSymbol.BELL,
+                    -1,
+                    LocalDateTime.now()
+            );
+            fail("Ein negativer PayoutMultiplier muss abgelehnt werden.");
+        } catch (IllegalArgumentException e) {
+            assertNotNull(e.getMessage());
+        }
+    }
+
     private SlotGame createValidSlotGame(LocalDateTime playedAt) {
         return SlotGame.create(
                 1L,

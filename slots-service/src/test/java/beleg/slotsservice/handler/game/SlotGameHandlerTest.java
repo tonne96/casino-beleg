@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -154,5 +155,57 @@ class SlotGameHandlerTest {
         } catch (IllegalArgumentException e) {
             assertNotNull(e.getMessage());
         }
+    }
+
+    @Test
+    void evaluateHandlesRandomizedBetsAndSymbolCombinations() {
+        Random testRandom = new Random(20260802L);
+        SlotSymbol[] symbols = SlotSymbol.values();
+
+        // Fester Seed: breite Zufallsabdeckung, aber bei Fehlern reproduzierbar.
+        for (int testRun = 0; testRun < 500; testRun++) {
+            BigDecimal betAmount = BigDecimal.valueOf(testRandom.nextLong(1, 1_000_000), 2);
+            List<SlotSymbol> slotStates = List.of(
+                    symbols[testRandom.nextInt(symbols.length)],
+                    symbols[testRandom.nextInt(symbols.length)],
+                    symbols[testRandom.nextInt(symbols.length)]
+            );
+
+            SlotGameResult result = slotGameHandler.evaluate(betAmount, slotStates);
+
+            assertEquals(slotStates, result.slotStates());
+            assertEquals(result.payoutMultiplier() > 0, result.winning());
+            assertEquals(expectedNetAmount(betAmount, result.payoutMultiplier()), result.amount());
+        }
+    }
+
+    @Test
+    void evaluateAcceptsPositiveExtremeBetAmounts() {
+        List<SlotSymbol> loss = List.of(SlotSymbol.CHERRY, SlotSymbol.LEMON, SlotSymbol.BELL);
+        BigDecimal smallestCent = new BigDecimal("0.01");
+        BigDecimal veryLargeBet = new BigDecimal("99999999999999999.99");
+
+        assertEquals(smallestCent.negate(), slotGameHandler.evaluate(smallestCent, loss).amount());
+        assertEquals(veryLargeBet.negate(), slotGameHandler.evaluate(veryLargeBet, loss).amount());
+    }
+
+    @Test
+    void playCreatesValidRandomizedRounds() {
+        Random testRandom = new Random(20260803L);
+
+        for (int testRun = 0; testRun < 250; testRun++) {
+            BigDecimal betAmount = BigDecimal.valueOf(testRandom.nextLong(1, 1_000_000), 2);
+
+            SlotGameResult result = slotGameHandler.play(betAmount);
+
+            assertEquals(3, result.slotStates().size());
+            assertEquals(result.payoutMultiplier() > 0, result.winning());
+            assertEquals(expectedNetAmount(betAmount, result.payoutMultiplier()), result.amount());
+        }
+    }
+
+    private BigDecimal expectedNetAmount(BigDecimal betAmount, int payoutMultiplier) {
+        BigDecimal payout = betAmount.multiply(BigDecimal.valueOf(payoutMultiplier));
+        return payout.subtract(betAmount);
     }
 }
