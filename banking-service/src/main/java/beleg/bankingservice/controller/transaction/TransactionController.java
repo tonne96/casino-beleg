@@ -20,7 +20,7 @@ public class TransactionController implements ITransactionController {
     // todo interface
     private final ITransactionHandler transactionHandler;
 
-    public TransactionController(TransactionHandler transactionHandler) {
+    public TransactionController(ITransactionHandler transactionHandler) {
         this.transactionHandler = transactionHandler;
     }
 
