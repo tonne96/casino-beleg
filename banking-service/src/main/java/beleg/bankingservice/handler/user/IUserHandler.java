@@ -14,7 +14,7 @@ public interface IUserHandler {
 
     User createUser(String firstName, String lastName);
 
-    Optional<User> updateUser(Long id, String filename, String lastName);
+    Optional<User> updateUser(Long id, String firstName, String lastName);
 
     Optional<User> deleteUser(Long id);
 
