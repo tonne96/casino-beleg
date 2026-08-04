@@ -139,7 +139,7 @@ class TransactionControllerTest {
 		Long userId = 1L;
 		BigDecimal amount = BigDecimal.valueOf(10);
 		TransactionRequest request = new TransactionRequest("SLOTS", null, amount);
-		when(transactionHandler.createTransaction("SLOTS", userId, amount)).thenThrow(new IllegalArgumentException()); // TODO checken ob das hier mit den Argumenten Sinn ergibt
+		when(transactionHandler.createTransaction("SLOTS", userId, amount)).thenThrow(new IllegalArgumentException());
 		
 		ResponseEntity<TransactionView> response = transactionController.createTransaction(userId, request);
 		
