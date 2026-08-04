@@ -21,7 +21,7 @@ public class UserController implements IUserController {
 
     private final IUserHandler userHandler;
 
-    public UserController(UserHandler userHandler) {
+    public UserController(IUserHandler userHandler) {
         this.userHandler = userHandler;
     }
 
