@@ -100,7 +100,7 @@ class TransactionControllerTest {
 		assertNotNull(response.getBody());
 		assertEquals(2, response.getBody().size());
 		assertEquals(1L, response.getBody().getFirst().user());
-		assertEquals(BigDecimal.valueOf(10), response.getBody().getFirst().amount());
+		assertEquals(amount, response.getBody().getFirst().amount());
 		verify(transactionHandler).getTransactionsByUser(userId);
 	}
 	
@@ -116,7 +116,7 @@ class TransactionControllerTest {
 		
 		assertEquals(HttpStatus.CREATED, response.getStatusCode());
 		assertNotNull(response.getBody());
-		assertEquals(BigDecimal.valueOf(10), response.getBody().amount());
+		assertEquals(amount, response.getBody().amount());
 		verify(transactionHandler).createTransaction("SLOTS", userId, amount);
 	}
 	
