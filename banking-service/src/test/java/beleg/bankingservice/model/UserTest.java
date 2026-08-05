@@ -65,6 +65,20 @@ class UserTest {
     }
 
     @Test
+    void adjustBalance_subtractNegativeAmount() {
+        user.adjustBalance(BigDecimal.valueOf(100));
+        user.adjustBalance(BigDecimal.valueOf(-30));
+        assertEquals(BigDecimal.valueOf(70), user.getBalance());
+    }
+
+    @Test
+    void adjustBalanceAllowsZeroAmount() {
+        user.adjustBalance(BigDecimal.ZERO);
+
+        assertEquals(BigDecimal.ZERO, user.getBalance());
+    }
+
+    @Test
     void constructorThrowsExceptionWhenFirstNameIsNull() {
         assertThrows(IllegalArgumentException.class, () -> new User(null, "last"));
     }
@@ -90,13 +104,6 @@ class UserTest {
 
         assertEquals("Max", user.getFirstName());
         assertEquals("Mustermann", user.getLastName());
-    }
-
-    @Test
-    void adjustBalance_subtractNegativeAmount() {
-        user.adjustBalance(BigDecimal.valueOf(100));
-        user.adjustBalance(BigDecimal.valueOf(-30));
-        assertEquals(BigDecimal.valueOf(70), user.getBalance());
     }
 
     @Test
