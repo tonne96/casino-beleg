@@ -1,6 +1,6 @@
 package beleg.rouletteservice.factory;
 
-import beleg.rouletteservice.model.RouletteGameImpl;
+import beleg.rouletteservice.model.IRouletteGame;
 import beleg.rouletteservice.model.RouletteGameResult;
 import beleg.rouletteservice.result.Failures;
 import beleg.rouletteservice.result.IResult;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface IRouletteGameFactory {
 
-    IResult<RouletteGameImpl, Failures> create(
+    IResult<IRouletteGame, Failures> create(
             Long userId,
             BigDecimal betAmount,
             RouletteBetType betType,

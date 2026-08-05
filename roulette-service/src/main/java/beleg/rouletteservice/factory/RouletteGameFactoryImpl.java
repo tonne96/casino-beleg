@@ -1,10 +1,12 @@
 package beleg.rouletteservice.factory;
 
+import beleg.rouletteservice.model.IRouletteGame;
 import beleg.rouletteservice.model.RouletteGameImpl;
 import beleg.rouletteservice.model.RouletteGameResult;
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
 import beleg.rouletteservice.result.IResult;
+import beleg.rouletteservice.result.Success;
 import beleg.rouletteservice.rules.RouletteBetType;
 import beleg.rouletteservice.handler.game.strategies.BetStrategyResolver;
 import beleg.rouletteservice.handler.game.strategies.IBetStrategy;
@@ -25,7 +27,7 @@ public class RouletteGameFactoryImpl implements IRouletteGameFactory {
     }
 
     @Override
-    public IResult<RouletteGameImpl, Failures> create(
+    public IResult<IRouletteGame, Failures> create(
             Long userId,
             BigDecimal betAmount,
             RouletteBetType betType,
@@ -46,16 +48,20 @@ public class RouletteGameFactoryImpl implements IRouletteGameFactory {
             return new Failure<>(betValidation.getMessage());
         }
 
-        return RouletteGameImpl.create(
-                userId, 
-                betAmount, 
-                result.winning(), 
-                result.amount(), 
+        IResult<RouletteGameImpl, Failures> creationResult = RouletteGameImpl.create(
+                userId,
+                betAmount,
+                result.winning(),
+                result.amount(),
                 betType,
-                betNumbers, 
-                result.winningNumber(), 
+                betNumbers,
+                result.winningNumber(),
                 result.payoutMultiplier(),
                 LocalDateTime.now()
         );
+        if (!creationResult.isSuccess()) {
+            return new Failure<>(creationResult.getMessage());
+        }
+        return new Success<>(creationResult.getValue());
     }
 }

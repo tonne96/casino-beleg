@@ -1,14 +1,8 @@
 package beleg.rouletteservice.controller;
 
-
 import beleg.rouletteservice.handler.stats.IRouletteStatsHandler;
-import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.view.response.GameStatDto;
 import beleg.rouletteservice.view.response.GlobalStatsResponseDto;
-import beleg.rouletteservice.view.response.UserStatsResponseDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,66 +17,37 @@ import java.util.List;
 @RequestMapping("/casino/roulette/api")
 public class RouletteStatsController {
 
-    private static final Logger log = LoggerFactory.getLogger(RouletteStatsController.class);
-
     private final IRouletteStatsHandler statsService;
+    private final FailureResponseMapper responseMapper;
 
-    public RouletteStatsController(IRouletteStatsHandler statsService) {
+    public RouletteStatsController(IRouletteStatsHandler statsService,
+                                   FailureResponseMapper responseMapper) {
         this.statsService = statsService;
+        this.responseMapper = responseMapper;
     }
 
     @GetMapping("/stats")
     public ResponseEntity<GlobalStatsResponseDto> getGlobalStats() {
-        GlobalStatsResponseDto globalStats = statsService.getGlobalStats();
-        return ResponseEntity.status(HttpStatus.OK).body(globalStats);
+        return ResponseEntity.status(HttpStatus.OK).body(statsService.getGlobalStats());
     }
 
     @GetMapping("/stats/user/{userId}")
     public ResponseEntity<Object> getUserStats(@PathVariable("userId") Long userId) {
-        IResult<UserStatsResponseDto, Failures> result = statsService.getUserStats(userId);
-
-        if (result.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
-        }
-
-        return buildErrorResponse(result.getMessage());
+        return responseMapper.toResponse(statsService.getUserStats(userId));
     }
 
     @GetMapping("/stats/games")
     public ResponseEntity<List<GameStatDto>> getAllGameStats() {
-        List<GameStatDto> gameStats = statsService.getAllGameStats();
-        return ResponseEntity.status(HttpStatus.OK).body(gameStats);
+        return ResponseEntity.status(HttpStatus.OK).body(statsService.getAllGameStats());
     }
 
     @GetMapping("/stat/{gameId}")
     public ResponseEntity<Object> getGameStat(@PathVariable("gameId") Long gameId) {
-        IResult<GameStatDto, Failures> result = statsService.getGameStat(gameId);
-
-        if (result.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
-        }
-
-        return buildErrorResponse(result.getMessage());
+        return responseMapper.toResponse(statsService.getGameStat(gameId));
     }
 
     @DeleteMapping("/stat/{gameId}")
     public ResponseEntity<Object> deleteGameStat(@PathVariable("gameId") Long gameId) {
-        IResult<GameStatDto, Failures> result = statsService.deleteGameStat(gameId);
-
-        if (result.isSuccess()) {
-            return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
-        }
-
-        return buildErrorResponse(result.getMessage());
-    }
-
-    private ResponseEntity<Object> buildErrorResponse(Failures failure) {
-        HttpStatus status = switch (failure) {
-            case USER_NOT_FOUND, GAME_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case NOT_NULL, OUT_OF_RANGE -> HttpStatus.BAD_REQUEST;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
-        log.warn("Fehlerhafter Statistik-Aufruf: {}", failure);
-        return ResponseEntity.status(status).body(failure);
+        return responseMapper.toResponse(statsService.deleteGameStat(gameId));
     }
 }
