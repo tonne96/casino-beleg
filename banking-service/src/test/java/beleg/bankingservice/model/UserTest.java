@@ -53,7 +53,6 @@ class UserTest {
         assertEquals(BigDecimal.valueOf(10), user.getBalance());
     }
 
-
     @Test
     void adjustBalance_randomPositiveAmount() {
         Random random = new Random();
@@ -65,6 +64,33 @@ class UserTest {
         assertEquals(amount, user.getBalance());
     }
 
+    @Test
+    void constructorThrowsExceptionWhenFirstNameIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> new User(null, "last"));
+    }
+
+    @Test
+    void constructorThrowsExceptionWhenFirstNameIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> new User("   ", "last"));
+    }
+
+    @Test
+    void constructorThrowsExceptionWhenLastNameIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> new User("first", null));
+    }
+
+    @Test
+    void constructorThrowsExceptionWhenLastNameIsBlank() {
+        assertThrows(IllegalArgumentException.class, () -> new User("first", "   "));
+    }
+
+    @Test
+    void constructorTrimsNames() {
+        User user = new User("  Max  ", "  Mustermann  ");
+
+        assertEquals("Max", user.getFirstName());
+        assertEquals("Mustermann", user.getLastName());
+    }
 
     @Test
     void adjustBalance_subtractNegativeAmount() {
@@ -73,13 +99,21 @@ class UserTest {
         assertEquals(BigDecimal.valueOf(70), user.getBalance());
     }
 
-
-
     @Test
     void updateName() {
         user.updateName("new", "name");
 
         assertEquals("new", user.getFirstName());
         assertEquals("name", user.getLastName());
+    }
+
+    @Test
+    void updateNameThrowsExceptionWhenFirstNameIsInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> user.updateName("", "newLast"));
+    }
+
+    @Test
+    void updateNameThrowsExceptionWhenLastNameIsInvalid() {
+        assertThrows(IllegalArgumentException.class, () -> user.updateName("newFirst", null));
     }
 }
