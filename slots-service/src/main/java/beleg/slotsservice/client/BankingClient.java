@@ -2,6 +2,7 @@ package beleg.slotsservice.client;
 
 import beleg.slotsservice.exception.BankingCommunicationException;
 import beleg.slotsservice.exception.BankingUserNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class BankingClient implements IBankingClient {
 
     private final RestClient restClient;
 
+    @Autowired
     public BankingClient(@Value("${banking.service.url}") String bankingServiceUrl) {
         this(RestClient.builder()
                 .baseUrl(bankingServiceUrl)
