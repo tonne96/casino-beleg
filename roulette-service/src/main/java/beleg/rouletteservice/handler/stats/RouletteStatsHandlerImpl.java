@@ -2,7 +2,7 @@ package beleg.rouletteservice.handler.stats;
 
 import beleg.rouletteservice.client.banking.IBankingClient;
 import beleg.rouletteservice.client.banking.BankingUserDto;
-import beleg.rouletteservice.model.RouletteGame;
+import beleg.rouletteservice.model.RouletteGameImpl;
 import beleg.rouletteservice.repository.IRouletteGameRepository;
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
@@ -37,20 +37,20 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
     @Override
     public GlobalStatsResponseDto getGlobalStats() {
-        List<RouletteGame> allGames = repository.findAll();
+        List<RouletteGameImpl> allGames = repository.findAll();
 
         long totalGamesCount = allGames.size();
         long totalClientCount = allGames.stream()
-                .map(RouletteGame::getUserId)
+                .map(RouletteGameImpl::getUserId)
                 .distinct()
                 .count();
 
-        BigDecimal totalTurnover = sum(allGames, RouletteGame::getBetAmount);
+        BigDecimal totalTurnover = sum(allGames, RouletteGameImpl::getBetAmount);
         BigDecimal totalCashOut = allGames.stream()
-                .filter(RouletteGame::isWinning)
-                .map(RouletteGame::getAmount)
+                .filter(RouletteGameImpl::isWinning)
+                .map(RouletteGameImpl::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalProfit = sum(allGames, RouletteGame::getAmount).negate();
+        BigDecimal totalProfit = sum(allGames, RouletteGameImpl::getAmount).negate();
 
         return new GlobalStatsResponseDto(
                 totalClientCount, totalGamesCount, totalProfit, totalCashOut, totalTurnover
@@ -64,20 +64,20 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
             return new Failure<>(userResult.getMessage());
         }
 
-        List<RouletteGame> userGames = repository.findByUserId(userId);
+        List<RouletteGameImpl> userGames = repository.findByUserId(userId);
 
         long totalGamesCount = userGames.size();
         BigDecimal totalWinnings = userGames.stream()
-                .filter(RouletteGame::isWinning)
-                .map(RouletteGame::getAmount)
+                .filter(RouletteGameImpl::isWinning)
+                .map(RouletteGameImpl::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal totalLosses = userGames.stream()
                 .filter(game -> !game.isWinning())
-                .map(RouletteGame::getAmount)
+                .map(RouletteGameImpl::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .negate();
         BigDecimal totalClientProfit = totalWinnings.subtract(totalLosses);
-        BigDecimal totalHouseTurnoverFromClient = sum(userGames, RouletteGame::getBetAmount);
+        BigDecimal totalHouseTurnoverFromClient = sum(userGames, RouletteGameImpl::getBetAmount);
         BigDecimal totalHouseProfitFromClient = totalClientProfit.negate();
 
         UserStatsResponseDto dto = new UserStatsResponseDto(
@@ -101,7 +101,7 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
     @Override
     public IResult<GameStatDto, Failures> getGameStat(Long gameId) {
-        Optional<RouletteGame> maybeGame = repository.findById(gameId);
+        Optional<RouletteGameImpl> maybeGame = repository.findById(gameId);
         if (maybeGame.isEmpty()) {
             return new Failure<>(Failures.GAME_NOT_FOUND);
         }
@@ -110,7 +110,7 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
     @Override
     public IResult<GameStatDto, Failures> deleteGameStat(Long gameId) {
-        Optional<RouletteGame> maybeGame = repository.findById(gameId);
+        Optional<RouletteGameImpl> maybeGame = repository.findById(gameId);
         if (maybeGame.isEmpty()) {
             return new Failure<>(Failures.GAME_NOT_FOUND);
         }
@@ -119,13 +119,13 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
         return new Success<>(dto);
     }
 
-    private BigDecimal sum(List<RouletteGame> games, Function<RouletteGame, BigDecimal> extractor) {
+    private BigDecimal sum(List<RouletteGameImpl> games, Function<RouletteGameImpl, BigDecimal> extractor) {
         return games.stream()
                 .map(extractor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private GameStatDto toGameStatDto(RouletteGame game) {
+    private GameStatDto toGameStatDto(RouletteGameImpl game) {
         return new GameStatDto(
                 game.getId(),
                 game.getUserId(),

@@ -6,7 +6,7 @@ import beleg.rouletteservice.factory.IRouletteGameFactory;
 import beleg.rouletteservice.handler.game.strategies.IBetStrategy;
 import beleg.rouletteservice.handler.game.strategies.BetStrategyResolver;
 import beleg.rouletteservice.handler.game.wheel.IRouletteWheel;
-import beleg.rouletteservice.model.RouletteGame;
+import beleg.rouletteservice.model.RouletteGameImpl;
 import beleg.rouletteservice.model.RouletteGameResult;
 import beleg.rouletteservice.repository.IRouletteGameRepository;
 import beleg.rouletteservice.result.Failure;
@@ -87,7 +87,7 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
             return new Failure<>(gameResultResult.getMessage());
         }
 
-        IResult<RouletteGame, Failures> gameCreationResult = rouletteGameFactory.create(
+        IResult<RouletteGameImpl, Failures> gameCreationResult = rouletteGameFactory.create(
                 request.user(),
                 request.betAmount(),
                 request.betType(),
@@ -103,7 +103,7 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
             return new Failure<>(bookingResult.getMessage());
         }
 
-        RouletteGame savedGame = repository.save(gameCreationResult.getValue());
+        RouletteGameImpl savedGame = repository.save(gameCreationResult.getValue());
 
         PlayResponseDto response = new PlayResponseDto(
                 savedGame.getUserId(),

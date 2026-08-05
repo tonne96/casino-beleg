@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "roulette_game")
-public class RouletteGame {
+public class RouletteGameImpl implements IRouletteGame{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,9 +57,9 @@ public class RouletteGame {
     private LocalDateTime playedAt;
 
     // JPA benoetigt einen parameterlosen Konstruktor.
-    protected RouletteGame() {}
+    protected RouletteGameImpl() {}
 
-    public static IResult<RouletteGame, Failures> create(
+    public static IResult<RouletteGameImpl, Failures> create(
             Long userId,
             BigDecimal betAmount,
             boolean winning,
@@ -86,7 +86,7 @@ public class RouletteGame {
             return new Failure<>(validationResult.getMessage());
         }
 
-        RouletteGame rouletteGame = new RouletteGame(
+        RouletteGameImpl rouletteGame = new RouletteGameImpl(
                 userId,
                 betAmount,
                 winning,
@@ -101,7 +101,7 @@ public class RouletteGame {
         return new Success<>(rouletteGame);
     }
 
-    private RouletteGame(
+    private RouletteGameImpl(
             Long userId,
             BigDecimal betAmount,
             boolean winning,
@@ -327,7 +327,7 @@ public class RouletteGame {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RouletteGame rouletteGame)) return false;
+        if (!(o instanceof RouletteGameImpl rouletteGame)) return false;
         return Objects.equals(id, rouletteGame.id);
     }
 
