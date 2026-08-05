@@ -10,7 +10,7 @@ import java.util.List;
 // Bsp.: 1,2,4,5  bei unseren Wetten gibt man einfach die kleinste Zahl des vierecks an
 
 @Component
-public class CornerBetStrategy implements BetStrategy {
+public class CornerBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

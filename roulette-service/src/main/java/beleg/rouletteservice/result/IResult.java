@@ -1,6 +1,6 @@
 package beleg.rouletteservice.result;
 
-public interface Result<T,M> {
+public interface IResult<T,M> {
     boolean isSuccess();
     T getValue();
     M getMessage();

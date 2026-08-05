@@ -10,7 +10,7 @@ import java.util.List;
 // Bei 0 gewinnt immer das Casino
 
 @Component
-public class ColumnBetStrategy implements BetStrategy {
+public class ColumnBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

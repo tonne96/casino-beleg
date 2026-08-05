@@ -9,7 +9,7 @@ import java.util.List;
 // es wird auf die geraden oder ungeraden zahlen gesetz
 // 0 zählt zu keinen der beiden kategorien, das Casino gewinnt immer bei 0
 @Component
-public class OddOrEvenBetStrategy implements BetStrategy {
+public class OddOrEvenBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

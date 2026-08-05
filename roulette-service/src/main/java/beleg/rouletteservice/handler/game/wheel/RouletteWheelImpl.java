@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 // durch inteface könnte man aber auch ein zweites bauen, welches auch logik für eine 00 enthält um
 // beispielsweise das europäische roulette mit dem amerikanischen auszutauschen
 @Component
-public class RouletteWheelImpl implements RouletteWheel {
+public class RouletteWheelImpl implements IRouletteWheel {
 
     private final SecureRandom random = new SecureRandom();
 

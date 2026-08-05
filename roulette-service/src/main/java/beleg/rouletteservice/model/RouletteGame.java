@@ -2,7 +2,7 @@ package beleg.rouletteservice.model;
 
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.result.Results;
 import beleg.rouletteservice.result.Success;
 import beleg.rouletteservice.rules.RouletteBetType;
@@ -59,7 +59,7 @@ public class RouletteGame {
     // JPA benoetigt einen parameterlosen Konstruktor.
     protected RouletteGame() {}
 
-    public static Result<RouletteGame, Failures> create(
+    public static IResult<RouletteGame, Failures> create(
             Long userId,
             BigDecimal betAmount,
             boolean winning,
@@ -70,7 +70,7 @@ public class RouletteGame {
             int payoutMultiplier,
             LocalDateTime playedAt) {
 
-        List<Result<Void, Failures>> validations = List.of(
+        List<IResult<Void, Failures>> validations = List.of(
                 validateUserId(userId),
                 validateBetAmount(betAmount),
                 validateAmount(amount),
@@ -81,7 +81,7 @@ public class RouletteGame {
                 validatePlayedAt(playedAt)
         );
 
-        Result<Void, Failures> validationResult = Results.firstFailure(validations);
+        IResult<Void, Failures> validationResult = Results.firstFailure(validations);
         if (!validationResult.isSuccess()) {
             return new Failure<>(validationResult.getMessage());
         }
@@ -143,7 +143,7 @@ public class RouletteGame {
     public LocalDateTime getPlayedAt() {return playedAt;}
 
 
-    private static Result<Void, Failures> validateUserId(Long userId) {
+    private static IResult<Void, Failures> validateUserId(Long userId) {
         if (userId == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
@@ -153,7 +153,7 @@ public class RouletteGame {
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validateBetAmount(BigDecimal betAmount) {
+    private static IResult<Void, Failures> validateBetAmount(BigDecimal betAmount) {
         if (betAmount == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
@@ -163,21 +163,21 @@ public class RouletteGame {
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validateAmount(BigDecimal amount) {
+    private static IResult<Void, Failures> validateAmount(BigDecimal amount) {
         if (amount == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validateRouletteBetType(RouletteBetType rouletteBetType) {
+    private static IResult<Void, Failures> validateRouletteBetType(RouletteBetType rouletteBetType) {
         if (rouletteBetType == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validateBetSetup(
+    private static IResult<Void, Failures> validateBetSetup(
             RouletteBetType betType, List<Integer> betNumbers) {
 
         if (betNumbers == null) {
@@ -200,7 +200,7 @@ public class RouletteGame {
     }
 
     //SINGLE: genau eine Zahl zwischen 0 und 36
-    private static Result<Void, Failures> validateSingle(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateSingle(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -212,7 +212,7 @@ public class RouletteGame {
     }
 
     //RED_OR_BLACK / ODD_OR_EVEN / LOW_OR_HIGH: genau eine Zahl, nur 0 oder 1
-    private static Result<Void, Failures> validateBinaryChoice(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateBinaryChoice(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -224,7 +224,7 @@ public class RouletteGame {
     }
 
     // DOZEN / COLUMN: genau eine Zahl, nur 1, 2 oder 3
-    private static Result<Void, Failures> validateOneToThree(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateOneToThree(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -237,7 +237,7 @@ public class RouletteGame {
 
 
     // nur eine zahl die sich in der linken spalte befinden muss %3 ergibt immer 1 !
-    private static Result<Void, Failures> validateStreet(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateStreet(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -249,7 +249,7 @@ public class RouletteGame {
     }
 
     // nur eine zahl die sich in der linken spalte befinden muss %3 ergibt immer 1 !
-    private static Result<Void, Failures> validateSixLine(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateSixLine(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -261,7 +261,7 @@ public class RouletteGame {
     }
 
     // nur eine zahl die sich nur in der linken und mittleren spalte befinden muss %3 !=0
-    private static Result<Void, Failures> validateCorner(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateCorner(List<Integer> betNumbers) {
         if (betNumbers.size() != 1) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -273,7 +273,7 @@ public class RouletteGame {
     }
 
     // zwei zahlen die benachtbart sein müssen(also horizontal oder vertikal auf dem Tableau), 0 ist speziall Fall
-    private static Result<Void, Failures> validateSplit(List<Integer> betNumbers) {
+    private static IResult<Void, Failures> validateSplit(List<Integer> betNumbers) {
         if (betNumbers.size() != 2) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
@@ -303,21 +303,21 @@ public class RouletteGame {
         return horizontallyAdjacent || verticallyAdjacent;
     }
 
-    private static Result<Void, Failures> validateWinningNumber(int winningNumber) {
+    private static IResult<Void, Failures> validateWinningNumber(int winningNumber) {
         if (winningNumber < 0 || winningNumber > 36) {
             return new Failure<>(Failures.OUT_OF_RANGE);
         }
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validatePayoutMultiplier(int payoutMultiplier) {
+    private static IResult<Void, Failures> validatePayoutMultiplier(int payoutMultiplier) {
         if (payoutMultiplier < 0) {
             return new Failure<>(Failures.NOT_NEGATIVE);
         }
         return new Success<>(null);
     }
 
-    private static Result<Void, Failures> validatePlayedAt(LocalDateTime playedAt) {
+    private static IResult<Void, Failures> validatePlayedAt(LocalDateTime playedAt) {
         if (playedAt == null) {
             return new Failure<>(Failures.NOT_NULL);
         }

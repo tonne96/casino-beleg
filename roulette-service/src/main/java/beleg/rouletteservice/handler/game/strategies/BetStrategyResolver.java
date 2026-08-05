@@ -16,14 +16,14 @@ import java.util.stream.Collectors;
 @Component
 public class BetStrategyResolver {
 
-    private final Map<RouletteBetType, BetStrategy> strategiesByType;
+    private final Map<RouletteBetType, IBetStrategy> strategiesByType;
 
-    public BetStrategyResolver(List<BetStrategy> betStrategies) {
+    public BetStrategyResolver(List<IBetStrategy> betStrategies) {
         this.strategiesByType = betStrategies.stream()
-                .collect(Collectors.toMap(BetStrategy::getBetType, Function.identity()));
+                .collect(Collectors.toMap(IBetStrategy::getBetType, Function.identity()));
     }
 
-    public Optional<BetStrategy> resolve(RouletteBetType betType) {
+    public Optional<IBetStrategy> resolve(RouletteBetType betType) {
         return Optional.ofNullable(strategiesByType.get(betType));
     }
 }

@@ -4,7 +4,7 @@ import beleg.rouletteservice.model.RouletteGame;
 import beleg.rouletteservice.model.RouletteGameResult;
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.rules.RouletteBetType;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class RouletteGameFactoryImpl implements RouletteGameFactory {
+public class RouletteGameFactoryImpl implements IRouletteGameFactory {
 
     @Override
-    public Result<RouletteGame, Failures> create(
+    public IResult<RouletteGame, Failures> create(
             Long userId,
             BigDecimal betAmount,
             RouletteBetType betType,

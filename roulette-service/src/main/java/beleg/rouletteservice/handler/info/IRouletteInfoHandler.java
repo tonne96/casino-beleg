@@ -1,6 +1,6 @@
 package beleg.rouletteservice.handler.info;
 
-public interface RouletteInfoHandler {
+public interface IRouletteInfoHandler {
 
     String getRules();
     String getChances();

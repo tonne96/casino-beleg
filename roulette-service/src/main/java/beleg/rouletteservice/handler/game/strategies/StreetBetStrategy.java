@@ -11,7 +11,7 @@ import java.util.List;
 //   0 kann man momentan nicht setzen, obwohl es auch die wettmöglichkeit first three gäbe,
 // die 0-2 enthält - überlegen noch zu implementieren
 @Component
-public class StreetBetStrategy implements BetStrategy {
+public class StreetBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

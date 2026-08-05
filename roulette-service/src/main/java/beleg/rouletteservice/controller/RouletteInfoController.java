@@ -1,6 +1,6 @@
 package beleg.rouletteservice.controller;
 
-import beleg.rouletteservice.handler.info.RouletteInfoHandler;
+import beleg.rouletteservice.handler.info.IRouletteInfoHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/casino/roulette/api/info")
 public class RouletteInfoController {
 
-    private final RouletteInfoHandler infoService;
+    private final IRouletteInfoHandler infoService;
 
-    public RouletteInfoController(RouletteInfoHandler infoService) {
+    public RouletteInfoController(IRouletteInfoHandler infoService) {
         this.infoService = infoService;
     }
 

@@ -1,6 +1,6 @@
 package beleg.rouletteservice.result;
 
-public class Failure<T,M> implements Result<T,M> {
+public class Failure<T,M> implements IResult<T,M> {
     private final M message;
 
     public Failure(M message){

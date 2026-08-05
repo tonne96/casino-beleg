@@ -1,6 +1,6 @@
 package beleg.rouletteservice.result;
 
-public class Success<T,M> implements Result<T,M> {
+public class Success<T,M> implements IResult<T,M> {
     private final T value;
 
     public Success(T value){

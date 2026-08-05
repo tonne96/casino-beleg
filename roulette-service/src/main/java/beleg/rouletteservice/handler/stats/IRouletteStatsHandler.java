@@ -1,18 +1,18 @@
 package beleg.rouletteservice.handler.stats;
 
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.view.response.GameStatDto;
 import beleg.rouletteservice.view.response.GlobalStatsResponseDto;
 import beleg.rouletteservice.view.response.UserStatsResponseDto;
 
 import java.util.List;
 
-public interface RouletteStatsHandler {
+public interface IRouletteStatsHandler {
 
     GlobalStatsResponseDto getGlobalStats();
-    Result<UserStatsResponseDto, Failures> getUserStats(Long userId);
+    IResult<UserStatsResponseDto, Failures> getUserStats(Long userId);
     List<GameStatDto> getAllGameStats();
-    Result<GameStatDto, Failures> getGameStat(Long gameId);
-    Result<GameStatDto, Failures> deleteGameStat(Long gameId);
+    IResult<GameStatDto, Failures> getGameStat(Long gameId);
+    IResult<GameStatDto, Failures> deleteGameStat(Long gameId);
 }

@@ -8,7 +8,7 @@ import java.util.List;
 
 // man setzt auf 6 aufeinander folgende zahlen, dabei muss sich die ersten zahl in der linken spalte befinden
 @Component
-public class SixLineBetStrategy implements BetStrategy {
+public class SixLineBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

@@ -1,9 +1,9 @@
 package beleg.rouletteservice.controller;
 
 
-import beleg.rouletteservice.handler.stats.RouletteStatsHandler;
+import beleg.rouletteservice.handler.stats.IRouletteStatsHandler;
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.view.response.GameStatDto;
 import beleg.rouletteservice.view.response.GlobalStatsResponseDto;
 import beleg.rouletteservice.view.response.UserStatsResponseDto;
@@ -25,9 +25,9 @@ public class RouletteStatsController {
 
     private static final Logger log = LoggerFactory.getLogger(RouletteStatsController.class);
 
-    private final RouletteStatsHandler statsService;
+    private final IRouletteStatsHandler statsService;
 
-    public RouletteStatsController(RouletteStatsHandler statsService) {
+    public RouletteStatsController(IRouletteStatsHandler statsService) {
         this.statsService = statsService;
     }
 
@@ -39,7 +39,7 @@ public class RouletteStatsController {
 
     @GetMapping("/stats/user/{userId}")
     public ResponseEntity<Object> getUserStats(@PathVariable("userId") Long userId) {
-        Result<UserStatsResponseDto, Failures> result = statsService.getUserStats(userId);
+        IResult<UserStatsResponseDto, Failures> result = statsService.getUserStats(userId);
 
         if (result.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
@@ -56,7 +56,7 @@ public class RouletteStatsController {
 
     @GetMapping("/stat/{gameId}")
     public ResponseEntity<Object> getGameStat(@PathVariable("gameId") Long gameId) {
-        Result<GameStatDto, Failures> result = statsService.getGameStat(gameId);
+        IResult<GameStatDto, Failures> result = statsService.getGameStat(gameId);
 
         if (result.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
@@ -67,7 +67,7 @@ public class RouletteStatsController {
 
     @DeleteMapping("/stat/{gameId}")
     public ResponseEntity<Object> deleteGameStat(@PathVariable("gameId") Long gameId) {
-        Result<GameStatDto, Failures> result = statsService.deleteGameStat(gameId);
+        IResult<GameStatDto, Failures> result = statsService.deleteGameStat(gameId);
 
         if (result.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(result.getValue());

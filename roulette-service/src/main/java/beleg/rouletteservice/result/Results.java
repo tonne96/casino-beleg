@@ -7,8 +7,8 @@ public final class Results {
     private Results() {
     }
 
-    public static <M> Result<Void, M> firstFailure(List<Result<Void, M>> results) {
-        for (Result<Void, M> result : results) {
+    public static <M> IResult<Void, M> firstFailure(List<IResult<Void, M>> results) {
+        for (IResult<Void, M> result : results) {
             if (!result.isSuccess()) {
                 return result;
             }

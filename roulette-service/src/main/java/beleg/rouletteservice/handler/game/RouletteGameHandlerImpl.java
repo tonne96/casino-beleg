@@ -1,17 +1,17 @@
 package beleg.rouletteservice.handler.game;
 
-import beleg.rouletteservice.client.banking.BankingClient;
+import beleg.rouletteservice.client.banking.IBankingClient;
 import beleg.rouletteservice.client.banking.BankingUserDto;
-import beleg.rouletteservice.factory.RouletteGameFactory;
-import beleg.rouletteservice.handler.game.strategies.BetStrategy;
+import beleg.rouletteservice.factory.IRouletteGameFactory;
+import beleg.rouletteservice.handler.game.strategies.IBetStrategy;
 import beleg.rouletteservice.handler.game.strategies.BetStrategyResolver;
-import beleg.rouletteservice.handler.game.wheel.RouletteWheel;
+import beleg.rouletteservice.handler.game.wheel.IRouletteWheel;
 import beleg.rouletteservice.model.RouletteGame;
 import beleg.rouletteservice.model.RouletteGameResult;
-import beleg.rouletteservice.repository.RouletteGameRepository;
+import beleg.rouletteservice.repository.IRouletteGameRepository;
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.result.Success;
 import beleg.rouletteservice.rules.RoulettePayoutRules;
 import beleg.rouletteservice.view.request.PlayRequestDto;
@@ -25,22 +25,22 @@ import java.util.Optional;
 //Falls das lokale Speichern nach erfolgreicher Banking-Buchung nicht klappt, entsteht eine inkonsistenz
 //  Geld wurde bereits gebucht, aber kein lokaler Datensatz existiert...
 @Service
-public class RouletteGameHandlerImpl implements RouletteGameHandler {
+public class RouletteGameHandlerImpl implements IRouletteGameHandler {
 
-    private final BankingClient bankingClient;
+    private final IBankingClient bankingClient;
     private final BetStrategyResolver betStrategyResolver;
-    private final RouletteWheel rouletteWheel;
+    private final IRouletteWheel rouletteWheel;
     private final RoulettePayoutRules payoutRules;
-    private final RouletteGameFactory rouletteGameFactory;
-    private final RouletteGameRepository repository;
+    private final IRouletteGameFactory rouletteGameFactory;
+    private final IRouletteGameRepository repository;
 
     public RouletteGameHandlerImpl(
-            BankingClient bankingClient,
+            IBankingClient bankingClient,
             BetStrategyResolver betStrategyResolver,
-            RouletteWheel rouletteWheel,
+            IRouletteWheel rouletteWheel,
             RoulettePayoutRules payoutRules,
-            RouletteGameFactory rouletteGameFactory,
-            RouletteGameRepository repository) {
+            IRouletteGameFactory rouletteGameFactory,
+            IRouletteGameRepository repository) {
         this.bankingClient = bankingClient;
         this.betStrategyResolver = betStrategyResolver;
         this.rouletteWheel = rouletteWheel;
@@ -50,20 +50,20 @@ public class RouletteGameHandlerImpl implements RouletteGameHandler {
     }
 
     @Override
-    public Result<PlayResponseDto, Failures> play(PlayRequestDto request) {
+    public IResult<PlayResponseDto, Failures> play(PlayRequestDto request) {
 
         if (request == null || request.user() == null || request.betAmount() == null
                 || request.betType() == null || request.betNumbers() == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
 
-        Optional<BetStrategy> maybeStrategy = betStrategyResolver.resolve(request.betType());
+        Optional<IBetStrategy> maybeStrategy = betStrategyResolver.resolve(request.betType());
         if (maybeStrategy.isEmpty()) {
             return new Failure<>(Failures.INVALID_BET_TYPE);
         }
-        BetStrategy betStrategy = maybeStrategy.get();
+        IBetStrategy betStrategy = maybeStrategy.get();
 
-        Result<BankingUserDto, Failures> userResult = bankingClient.getUser(request.user());
+        IResult<BankingUserDto, Failures> userResult = bankingClient.getUser(request.user());
         if (!userResult.isSuccess()) {
             return new Failure<>(userResult.getMessage());
         }
@@ -81,13 +81,13 @@ public class RouletteGameHandlerImpl implements RouletteGameHandler {
                 ? request.betAmount().multiply(BigDecimal.valueOf(payoutMultiplier))
                 : request.betAmount().negate();
 
-        Result<RouletteGameResult, Failures> gameResultResult =
+        IResult<RouletteGameResult, Failures> gameResultResult =
                 RouletteGameResult.create(won, netAmount, winningNumber, payoutMultiplier);
         if (!gameResultResult.isSuccess()) {
             return new Failure<>(gameResultResult.getMessage());
         }
 
-        Result<RouletteGame, Failures> gameCreationResult = rouletteGameFactory.create(
+        IResult<RouletteGame, Failures> gameCreationResult = rouletteGameFactory.create(
                 request.user(),
                 request.betAmount(),
                 request.betType(),
@@ -98,7 +98,7 @@ public class RouletteGameHandlerImpl implements RouletteGameHandler {
             return new Failure<>(gameCreationResult.getMessage());
         }
 
-        Result<Void, Failures> bookingResult = bankingClient.bookTransaction(request.user(), netAmount);
+        IResult<Void, Failures> bookingResult = bankingClient.bookTransaction(request.user(), netAmount);
         if (!bookingResult.isSuccess()) {
             return new Failure<>(bookingResult.getMessage());
         }

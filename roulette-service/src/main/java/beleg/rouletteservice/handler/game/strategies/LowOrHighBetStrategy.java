@@ -8,7 +8,7 @@ import java.util.List;
 // bei low setzt man auf 1-18 , bei high auf 19-36
 // bei 0 gewinnt immer das Casino
 @Component
-public class LowOrHighBetStrategy implements BetStrategy {
+public class LowOrHighBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {

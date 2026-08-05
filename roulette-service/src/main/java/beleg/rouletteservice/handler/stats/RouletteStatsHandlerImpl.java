@@ -1,12 +1,12 @@
 package beleg.rouletteservice.handler.stats;
 
-import beleg.rouletteservice.client.banking.BankingClient;
+import beleg.rouletteservice.client.banking.IBankingClient;
 import beleg.rouletteservice.client.banking.BankingUserDto;
 import beleg.rouletteservice.model.RouletteGame;
-import beleg.rouletteservice.repository.RouletteGameRepository;
+import beleg.rouletteservice.repository.IRouletteGameRepository;
 import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.result.Success;
 import beleg.rouletteservice.view.response.GameStatDto;
 import beleg.rouletteservice.view.response.GlobalStatsResponseDto;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 // total_profit / total_house_profit_from_client: Hausgewinn = negativer Netto-Gewinn der Spieler (unser Modell verbucht pro Runde nur den Netto-Betrag, siehe RouletteGameHandlerImpl - daher ist Hausgewinn exakt der negierte Spielergewinn.
 // getUserStats Nutzer wird bei banking verifiziert, da Roulette Service keine User Verwaltung hat und eine leere Spielhistorie sonst nicht von einem unbekannten Nutzer unterschieden werden kann
 @Service
-public class RouletteStatsHandlerImpl implements RouletteStatsHandler {
+public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
-    private final RouletteGameRepository repository;
-    private final BankingClient bankingClient;
+    private final IRouletteGameRepository repository;
+    private final IBankingClient bankingClient;
 
-    public RouletteStatsHandlerImpl(RouletteGameRepository repository, BankingClient bankingClient) {
+    public RouletteStatsHandlerImpl(IRouletteGameRepository repository, IBankingClient bankingClient) {
         this.repository = repository;
         this.bankingClient = bankingClient;
     }
@@ -58,8 +58,8 @@ public class RouletteStatsHandlerImpl implements RouletteStatsHandler {
     }
 
     @Override
-    public Result<UserStatsResponseDto, Failures> getUserStats(Long userId) {
-        Result<BankingUserDto, Failures> userResult = bankingClient.getUser(userId);
+    public IResult<UserStatsResponseDto, Failures> getUserStats(Long userId) {
+        IResult<BankingUserDto, Failures> userResult = bankingClient.getUser(userId);
         if (!userResult.isSuccess()) {
             return new Failure<>(userResult.getMessage());
         }
@@ -100,7 +100,7 @@ public class RouletteStatsHandlerImpl implements RouletteStatsHandler {
     }
 
     @Override
-    public Result<GameStatDto, Failures> getGameStat(Long gameId) {
+    public IResult<GameStatDto, Failures> getGameStat(Long gameId) {
         Optional<RouletteGame> maybeGame = repository.findById(gameId);
         if (maybeGame.isEmpty()) {
             return new Failure<>(Failures.GAME_NOT_FOUND);
@@ -109,7 +109,7 @@ public class RouletteStatsHandlerImpl implements RouletteStatsHandler {
     }
 
     @Override
-    public Result<GameStatDto, Failures> deleteGameStat(Long gameId) {
+    public IResult<GameStatDto, Failures> deleteGameStat(Long gameId) {
         Optional<RouletteGame> maybeGame = repository.findById(gameId);
         if (maybeGame.isEmpty()) {
             return new Failure<>(Failures.GAME_NOT_FOUND);

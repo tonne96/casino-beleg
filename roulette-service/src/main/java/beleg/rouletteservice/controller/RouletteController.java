@@ -1,8 +1,8 @@
 package beleg.rouletteservice.controller;
 
 import beleg.rouletteservice.result.Failures;
-import beleg.rouletteservice.result.Result;
-import beleg.rouletteservice.handler.game.RouletteGameHandler;
+import beleg.rouletteservice.result.IResult;
+import beleg.rouletteservice.handler.game.IRouletteGameHandler;
 import beleg.rouletteservice.view.request.PlayRequestDto;
 import beleg.rouletteservice.view.response.PlayResponseDto;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,9 +23,9 @@ public class RouletteController {
 
     private static final Logger log = LoggerFactory.getLogger(RouletteController.class);
 
-    private final RouletteGameHandler rouletteGameHandler;
+    private final IRouletteGameHandler rouletteGameHandler;
 
-    public RouletteController(RouletteGameHandler rouletteGameHandler) {
+    public RouletteController(IRouletteGameHandler rouletteGameHandler) {
         this.rouletteGameHandler = rouletteGameHandler;
     }
     // Mehrere Beispiele für die Wettarten und wie man den Request macht
@@ -83,7 +83,7 @@ public class RouletteController {
     )
     @PostMapping("/play")
     public ResponseEntity<Object> play(@RequestBody PlayRequestDto request) {
-        Result<PlayResponseDto, Failures> result = rouletteGameHandler.play(request);
+        IResult<PlayResponseDto, Failures> result = rouletteGameHandler.play(request);
         if (result.isSuccess()) {
             return ResponseEntity.status(HttpStatus.OK).body(result.getValue());
         }

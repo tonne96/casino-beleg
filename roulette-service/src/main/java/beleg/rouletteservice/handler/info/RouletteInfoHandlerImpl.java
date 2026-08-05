@@ -5,7 +5,7 @@ import beleg.rouletteservice.rules.RoulettePayoutRules;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RouletteInfoHandlerImpl implements RouletteInfoHandler {
+public class RouletteInfoHandlerImpl implements IRouletteInfoHandler {
 
     private final RoulettePayoutRules payoutRules;
 

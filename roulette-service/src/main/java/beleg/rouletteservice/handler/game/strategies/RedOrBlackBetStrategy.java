@@ -9,7 +9,7 @@ import java.util.Set;
 // man setzt entweder auf die roten oder schwarzen zahlen
 // die 0 ist grün, es gewinnt somit das casino immer bei 0
 @Component
-public class RedOrBlackBetStrategy implements BetStrategy {
+public class RedOrBlackBetStrategy implements IBetStrategy {
 
     private static final Set<Integer> RED_NUMBERS = Set.of(
             1, 3, 5, 7, 9, 12, 14, 16, 18,

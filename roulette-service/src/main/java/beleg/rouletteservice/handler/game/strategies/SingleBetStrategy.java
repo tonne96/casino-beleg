@@ -8,7 +8,7 @@ import java.util.List;
 
 // man kann auf eine Zahl setzen 0-36
 @Component
-public class SingleBetStrategy implements BetStrategy {
+public class SingleBetStrategy implements IBetStrategy {
 
     @Override
     public RouletteBetType getBetType() {
