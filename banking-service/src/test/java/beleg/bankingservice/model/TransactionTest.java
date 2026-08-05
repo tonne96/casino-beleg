@@ -128,4 +128,20 @@ class TransactionTest {
         assertThrows(IllegalArgumentException.class, () ->
                 transaction.update(Transaction.InvoicingParty.ROULETTE, userId, null));
     }
+
+    @Test
+    void updateAllowsNegativeAmount() {
+        BigDecimal negativeAmount = BigDecimal.valueOf(-50);
+
+        transaction.update(Transaction.InvoicingParty.SLOTS, userId, negativeAmount);
+
+        assertEquals(negativeAmount, transaction.getAmount());
+    }
+
+    @Test
+    void constructorAllowsZeroAmount() {
+        Transaction t = new Transaction(Transaction.InvoicingParty.ROULETTE, userId, BigDecimal.ZERO);
+
+        assertEquals(BigDecimal.ZERO, t.getAmount());
+    }
 }
