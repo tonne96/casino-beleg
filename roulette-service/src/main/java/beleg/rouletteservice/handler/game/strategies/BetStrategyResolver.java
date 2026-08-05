@@ -3,9 +3,7 @@ package beleg.rouletteservice.handler.game.strategies;
 import beleg.rouletteservice.rules.RouletteBetType;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -19,11 +17,25 @@ public class BetStrategyResolver {
     private final Map<RouletteBetType, IBetStrategy> strategiesByType;
 
     public BetStrategyResolver(List<IBetStrategy> betStrategies) {
+  
         this.strategiesByType = betStrategies.stream()
                 .collect(Collectors.toMap(IBetStrategy::getBetType, Function.identity()));
+
+        List<RouletteBetType> missing = Arrays.stream(RouletteBetType.values())
+                .filter(type -> !strategiesByType.containsKey(type))
+                .toList();
+        if (!missing.isEmpty()) {
+            throw new IllegalStateException("Keine IBetStrategy vorhanden fuer: " + missing);
+        }
     }
 
     public Optional<IBetStrategy> resolve(RouletteBetType betType) {
         return Optional.ofNullable(strategiesByType.get(betType));
+    }
+
+    public List<IBetStrategy> all() {
+        return strategiesByType.values().stream()
+                .sorted(Comparator.comparing(IBetStrategy::getBetType))
+                .toList();
     }
 }

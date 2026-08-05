@@ -13,7 +13,6 @@ import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
 import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.result.Success;
-import beleg.rouletteservice.rules.RoulettePayoutRules;
 import beleg.rouletteservice.view.request.PlayRequestDto;
 import beleg.rouletteservice.view.response.PlayResponseDto;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
     private final IBankingClient bankingClient;
     private final BetStrategyResolver betStrategyResolver;
     private final IRouletteWheel rouletteWheel;
-    private final RoulettePayoutRules payoutRules;
     private final IRouletteGameFactory rouletteGameFactory;
     private final IRouletteGameRepository repository;
 
@@ -38,13 +36,11 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
             IBankingClient bankingClient,
             BetStrategyResolver betStrategyResolver,
             IRouletteWheel rouletteWheel,
-            RoulettePayoutRules payoutRules,
             IRouletteGameFactory rouletteGameFactory,
             IRouletteGameRepository repository) {
         this.bankingClient = bankingClient;
         this.betStrategyResolver = betStrategyResolver;
         this.rouletteWheel = rouletteWheel;
-        this.payoutRules = payoutRules;
         this.rouletteGameFactory = rouletteGameFactory;
         this.repository = repository;
     }
@@ -63,6 +59,11 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
         }
         IBetStrategy betStrategy = maybeStrategy.get();
 
+        IResult<Void, Failures> inputValidation = validateInput(request, betStrategy);
+        if (!inputValidation.isSuccess()) {
+            return new Failure<>(inputValidation.getMessage());
+        }
+
         IResult<BankingUserDto, Failures> userResult = bankingClient.getUser(request.user());
         if (!userResult.isSuccess()) {
             return new Failure<>(userResult.getMessage());
@@ -75,8 +76,7 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
 
         int winningNumber = rouletteWheel.spin();
         boolean won = betStrategy.isWinning(request.betNumbers(), winningNumber);
-        int payoutMultiplier = won ? payoutRules.getPayoutMultiplier(request.betType()) : 0;
-
+        int payoutMultiplier = won ? betStrategy.getPayoutMultiplier() : 0;
         BigDecimal netAmount = won
                 ? request.betAmount().multiply(BigDecimal.valueOf(payoutMultiplier))
                 : request.betAmount().negate();
@@ -117,5 +117,11 @@ public class RouletteGameHandlerImpl implements IRouletteGameHandler {
         );
 
         return new Success<>(response);
+    }
+    private IResult<Void, Failures> validateInput(PlayRequestDto request, IBetStrategy strategy) {
+        if (request.betAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            return new Failure<>(Failures.BIGGER_ZERO);
+        }
+        return strategy.validate(request.betNumbers());
     }
 }

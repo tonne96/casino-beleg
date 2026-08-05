@@ -1,5 +1,7 @@
 package beleg.rouletteservice.handler.game.strategies;
 
+import beleg.rouletteservice.result.Failures;
+import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.rules.RouletteBetType;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,16 @@ public class LowOrHighBetStrategy implements IBetStrategy {
     @Override
     public RouletteBetType getBetType() {
         return RouletteBetType.LOW_OR_HIGH;
+    }
+
+    @Override
+    public int getPayoutMultiplier() {
+        return 1; 
+    }
+
+    @Override
+    public IResult<Void, Failures> validateNumbers(List<Integer> betNumbers) {
+        return BetNumberChecks.binaryChoice(betNumbers);
     }
 
     @Override

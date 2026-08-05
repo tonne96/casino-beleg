@@ -1,6 +1,8 @@
 package beleg.rouletteservice.handler.game.strategies;
 
 import beleg.rouletteservice.rules.RouletteBetType;
+import beleg.rouletteservice.result.Failures;
+import beleg.rouletteservice.result.IResult;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,6 +21,16 @@ public class RedOrBlackBetStrategy implements IBetStrategy {
     @Override
     public RouletteBetType getBetType() {
         return RouletteBetType.RED_OR_BLACK;
+    }
+
+    @Override
+    public int getPayoutMultiplier() {
+        return 1; 
+    }
+
+    @Override
+    public IResult<Void, Failures> validateNumbers(List<Integer> betNumbers) {
+        return BetNumberChecks.binaryChoice(betNumbers);
     }
 
     @Override

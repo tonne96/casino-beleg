@@ -75,7 +75,7 @@ public class RouletteGameImpl implements IRouletteGame{
                 validateBetAmount(betAmount),
                 validateAmount(amount),
                 validateRouletteBetType(betType),
-                validateBetSetup(betType, betNumbers),
+                validateBetNumbersNotNull(betNumbers),
                 validateWinningNumber(winningNumber),
                 validatePayoutMultiplier(payoutMultiplier),
                 validatePlayedAt(playedAt)
@@ -177,9 +177,7 @@ public class RouletteGameImpl implements IRouletteGame{
         return new Success<>(null);
     }
 
-    private static IResult<Void, Failures> validateBetSetup(
-            RouletteBetType betType, List<Integer> betNumbers) {
-
+    private static IResult<Void, Failures> validateBetNumbersNotNull(List<Integer> betNumbers) {
         if (betNumbers == null) {
             return new Failure<>(Failures.NOT_NULL);
         }
@@ -188,119 +186,7 @@ public class RouletteGameImpl implements IRouletteGame{
                 return new Failure<>(Failures.NOT_NULL);
             }
         }
-        return switch (betType) {
-            case RED_OR_BLACK, ODD_OR_EVEN, LOW_OR_HIGH -> validateBinaryChoice(betNumbers);
-            case DOZEN, COLUMN -> validateOneToThree(betNumbers);
-            case SINGLE -> validateSingle(betNumbers);
-            case STREET -> validateStreet(betNumbers);
-            case SIX_LINE -> validateSixLine(betNumbers);
-            case CORNER -> validateCorner(betNumbers);
-            case SPLIT -> validateSplit(betNumbers);
-        };
-    }
-
-    //SINGLE: genau eine Zahl zwischen 0 und 36
-    private static IResult<Void, Failures> validateSingle(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int n = betNumbers.get(0);
-        if (n < 0 || n > 36) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
         return new Success<>(null);
-    }
-
-    //RED_OR_BLACK / ODD_OR_EVEN / LOW_OR_HIGH: genau eine Zahl, nur 0 oder 1
-    private static IResult<Void, Failures> validateBinaryChoice(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int choice = betNumbers.get(0);
-        if (choice != 0 && choice != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-    // DOZEN / COLUMN: genau eine Zahl, nur 1, 2 oder 3
-    private static IResult<Void, Failures> validateOneToThree(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int choice = betNumbers.get(0);
-        if (choice < 1 || choice > 3) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-
-    // nur eine zahl die sich in der linken spalte befinden muss %3 ergibt immer 1 !
-    private static IResult<Void, Failures> validateStreet(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int a = betNumbers.get(0);
-        if (a < 1 || a > 34 || (a - 1) % 3 != 0) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-    // nur eine zahl die sich in der linken spalte befinden muss %3 ergibt immer 1 !
-    private static IResult<Void, Failures> validateSixLine(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int a = betNumbers.get(0);
-        if (a < 1 || a > 31 || (a - 1) % 3 != 0) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-    // nur eine zahl die sich nur in der linken und mittleren spalte befinden muss %3 !=0
-    private static IResult<Void, Failures> validateCorner(List<Integer> betNumbers) {
-        if (betNumbers.size() != 1) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int a = betNumbers.get(0);
-        if (a < 1 || a > 32 || a % 3 == 0) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-    // zwei zahlen die benachtbart sein müssen(also horizontal oder vertikal auf dem Tableau), 0 ist speziall Fall
-    private static IResult<Void, Failures> validateSplit(List<Integer> betNumbers) {
-        if (betNumbers.size() != 2) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        int a = betNumbers.get(0);
-        int b = betNumbers.get(1);
-        if (a < 0 || a > 36 || b < 0 || b > 36 || a == b) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        if (!areAdjacentOnTable(a, b)) {
-            return new Failure<>(Failures.OUT_OF_RANGE);
-        }
-        return new Success<>(null);
-    }
-
-    // prüft horizontale nachbarn zahlen diffferenz = 1
-    // und vertikale zahlen differenz = 3
-    // ausnahme bildet 0 die nur mit 1,2,3 benachtbart ist
-    private static boolean areAdjacentOnTable(int a, int b) {
-        // Spezialfall: 0 ist mit 1, 2, 3 benachbart
-        if ((a == 0 && (b == 1 || b == 2 || b == 3)) || (b == 0 && (a == 1 || a == 2 || a == 3))) {
-            return true;
-        }
-        int rowA = (a - 1) / 3;
-        int rowB = (b - 1) / 3;
-        boolean horizontallyAdjacent = rowA == rowB && Math.abs(a - b) == 1;
-        boolean verticallyAdjacent = Math.abs(a - b) == 3;
-        return horizontallyAdjacent || verticallyAdjacent;
     }
 
     private static IResult<Void, Failures> validateWinningNumber(int winningNumber) {

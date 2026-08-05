@@ -41,6 +41,10 @@ public class BankingClientImpl implements IBankingClient {
                     BankingUserDto.class,
                     userId
             );
+            if (user == null) {
+                log.error("Banking-Service lieferte fuer GET /user/{} einen leeren Body", userId);
+                return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
+            }
             return new Success<>(user);
         } catch (HttpClientErrorException.NotFound e) {
             return new Failure<>(Failures.USER_NOT_FOUND);
