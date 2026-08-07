@@ -52,6 +52,8 @@ Slots --> SlotsDB
 
 ___
 
+---
+
 ## BankingService
 
 ### Rendered Image
