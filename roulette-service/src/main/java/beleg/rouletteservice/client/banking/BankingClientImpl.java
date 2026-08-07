@@ -4,68 +4,73 @@ import beleg.rouletteservice.result.Failure;
 import beleg.rouletteservice.result.Failures;
 import beleg.rouletteservice.result.IResult;
 import beleg.rouletteservice.result.Success;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 
-
-// per REST wird mit banking kommuniziert, banking kann roulette service als bekannt zuordnen
-// da als invoicing party ROULETTE mitgeschickt wird
 @Component
 public class BankingClientImpl implements IBankingClient {
 
     private static final String INVOICING_PARTY = "ROULETTE";
 
-    private final RestTemplate restTemplate;
-    private final String bankingServiceBaseUrl;
+    private final RestClient restClient;
 
-    public BankingClientImpl(
-            RestTemplate restTemplate,
-            @Value("${banking.service.base-url}") String bankingServiceBaseUrl) {
-        this.restTemplate = restTemplate;
-        this.bankingServiceBaseUrl = bankingServiceBaseUrl;
+    @Autowired
+    public BankingClientImpl(@Value("${banking.service.base-url}") String bankingServiceBaseUrl) {
+        this(RestClient.builder().baseUrl(bankingServiceBaseUrl).build());
+    }
+
+    BankingClientImpl(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override
     public IResult<BankingUserDto, Failures> getUser(Long userId) {
         try {
-            BankingUserDto user = restTemplate.getForObject(
-                    bankingServiceBaseUrl + "/casino/bank/api/user/{id}",
-                    BankingUserDto.class,
-                    userId
-            );
-            if (user == null) {
+            ResponseEntity<BankingUserDto> response = restClient.get()
+                    .uri("/casino/bank/api/user/{id}", userId)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (request, res) -> { /* nicht werfen */ })
+                    .toEntity(BankingUserDto.class);
+
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return new Failure<>(Failures.USER_NOT_FOUND);
+            }
+            if (response.getStatusCode().isError() || response.getBody() == null) {
                 return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
             }
-            return new Success<>(user);
-        } catch (HttpClientErrorException.NotFound e) {
-            return new Failure<>(Failures.USER_NOT_FOUND);
-        } catch (HttpClientErrorException e) {
-            return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
+            return new Success<>(response.getBody());
         } catch (RestClientException e) {
             return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
         }
-    }
+    }                           
 
     @Override
     public IResult<Void, Failures> bookTransaction(Long userId, BigDecimal amount) {
         try {
             TransactionRequestDto request = new TransactionRequestDto(INVOICING_PARTY, amount);
-            restTemplate.postForEntity(
-                    bankingServiceBaseUrl + "/casino/bank/api/transaction/user/{userId}",
-                    request,
-                    Object.class,
-                    userId
-            );
+            ResponseEntity<Void> response = restClient.post()
+                    .uri("/casino/bank/api/transaction/user/{userId}", userId)
+                    .body(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, res) -> { /* nicht werfen */ })
+                    .toBodilessEntity();
+
+            if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
+                return new Failure<>(Failures.USER_NOT_FOUND);
+            }
+            if (response.getStatusCode().isError()) {
+                return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
+            }
             return new Success<>(null);
-        } catch (HttpClientErrorException.NotFound e) {
-            return new Failure<>(Failures.USER_NOT_FOUND);
-        } catch (HttpClientErrorException e) {
-            return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
         } catch (RestClientException e) {
             return new Failure<>(Failures.BANKING_SERVICE_UNAVAILABLE);
         }
