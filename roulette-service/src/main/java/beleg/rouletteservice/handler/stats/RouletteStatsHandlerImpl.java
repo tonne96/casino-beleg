@@ -12,18 +12,14 @@ import beleg.rouletteservice.view.response.GameStatDto;
 import beleg.rouletteservice.view.response.GlobalStatsResponseDto;
 import beleg.rouletteservice.view.response.UserStatsResponseDto;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 
- // - total_turnover / total_house_turnover_from_client: Summe aller Einsätze (betAmount), unabhaengig vom Ausgang der jeweiligen Runde
-// total_cash_out: Summe aller an Spieler ausgezahlten Gewinne (nur gewonnene Runden)
-// total_profit / total_house_profit_from_client: Hausgewinn = negativer Netto-Gewinn der Spieler (unser Modell verbucht pro Runde nur den Netto-Betrag, siehe RouletteGameHandlerImpl - daher ist Hausgewinn exakt der negierte Spielergewinn.
-// getUserStats Nutzer wird bei banking verifiziert, da Roulette Service keine User Verwaltung hat und eine leere Spielhistorie sonst nicht von einem unbekannten Nutzer unterschieden werden kann
 @Service
 public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
@@ -39,21 +35,24 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
     public GlobalStatsResponseDto getGlobalStats() {
         List<RouletteGameImpl> allGames = repository.findAll();
 
-        long totalGamesCount = allGames.size();
-        long totalClientCount = allGames.stream()
-                .map(RouletteGameImpl::getUserId)
-                .distinct()
-                .count();
+        Set<Long> clients = new HashSet<>();
+        BigDecimal totalTurnover = BigDecimal.ZERO;
+        BigDecimal totalCashOut = BigDecimal.ZERO;
 
-        BigDecimal totalTurnover = sum(allGames, RouletteGameImpl::getBetAmount);
-        BigDecimal totalCashOut = allGames.stream()
-                .filter(RouletteGameImpl::isWinning)
-                .map(RouletteGameImpl::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalProfit = sum(allGames, RouletteGameImpl::getAmount).negate();
+        for (RouletteGameImpl game : allGames) {
+            clients.add(game.getUserId());
+            totalTurnover = totalTurnover.add(game.getBetAmount());
+            totalCashOut = totalCashOut.add(calculateCashOut(game));
+        }
+
+        BigDecimal totalProfit = totalTurnover.subtract(totalCashOut);
 
         return new GlobalStatsResponseDto(
-                totalClientCount, totalGamesCount, totalProfit, totalCashOut, totalTurnover
+                clients.size(),
+                allGames.size(),
+                totalProfit,
+                totalCashOut,
+                totalTurnover
         );
     }
 
@@ -66,27 +65,29 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
         List<RouletteGameImpl> userGames = repository.findByUserId(userId);
 
-        long totalGamesCount = userGames.size();
-        BigDecimal totalWinnings = userGames.stream()
-                .filter(RouletteGameImpl::isWinning)
-                .map(RouletteGameImpl::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalLosses = userGames.stream()
-                .filter(game -> !game.isWinning())
-                .map(RouletteGameImpl::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .negate();
-        BigDecimal totalClientProfit = totalWinnings.subtract(totalLosses);
-        BigDecimal totalHouseTurnoverFromClient = sum(userGames, RouletteGameImpl::getBetAmount);
-        BigDecimal totalHouseProfitFromClient = totalClientProfit.negate();
+        BigDecimal totalWinnings = BigDecimal.ZERO;
+        BigDecimal totalLosses = BigDecimal.ZERO;
+        BigDecimal totalTurnover = BigDecimal.ZERO;
+
+        for (RouletteGameImpl game : userGames) {
+            totalWinnings = totalWinnings.add(calculateCashOut(game));
+            totalTurnover = totalTurnover.add(game.getBetAmount());
+
+            if (!game.isWinning()) {
+                totalLosses = totalLosses.add(game.getBetAmount());
+            }
+        }
+
+        BigDecimal totalClientProfit = totalWinnings.subtract(totalTurnover);
+        BigDecimal totalHouseProfitFromClient = totalTurnover.subtract(totalWinnings);
 
         UserStatsResponseDto dto = new UserStatsResponseDto(
                 userId,
-                totalGamesCount,
+                userGames.size(),
                 totalWinnings,
                 totalLosses,
                 totalClientProfit,
-                totalHouseTurnoverFromClient,
+                totalTurnover,
                 totalHouseProfitFromClient
         );
         return new Success<>(dto);
@@ -94,9 +95,13 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
 
     @Override
     public List<GameStatDto> getAllGameStats() {
-        return repository.findAll().stream()
-                .map(this::toGameStatDto)
-                .collect(Collectors.toList());
+        List<RouletteGameImpl> allGames = repository.findAll();
+
+        List<GameStatDto> dtos = new ArrayList<>();
+        for (RouletteGameImpl game : allGames) {
+            dtos.add(toGameStatDto(game));
+        }
+        return dtos;
     }
 
     @Override
@@ -119,10 +124,12 @@ public class RouletteStatsHandlerImpl implements IRouletteStatsHandler {
         return new Success<>(dto);
     }
 
-    private BigDecimal sum(List<RouletteGameImpl> games, Function<RouletteGameImpl, BigDecimal> extractor) {
-        return games.stream()
-                .map(extractor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    private BigDecimal calculateCashOut(RouletteGameImpl game) {
+        if (!game.isWinning()) {
+            return BigDecimal.ZERO;
+        }
+        long bruttoMultiplier = game.getPayoutMultiplier() + 1L;
+        return game.getBetAmount().multiply(BigDecimal.valueOf(bruttoMultiplier));
     }
 
     private GameStatDto toGameStatDto(RouletteGameImpl game) {
