@@ -1,7 +1,6 @@
 package beleg.bankingservice.controller.transaction;
 
 import beleg.bankingservice.handler.transaction.ITransactionHandler;
-import beleg.bankingservice.handler.transaction.TransactionHandler;
 import beleg.bankingservice.model.Transaction;
 import beleg.bankingservice.view.DeletedTransactionView;
 import beleg.bankingservice.view.TransactionRequest;
