@@ -17,7 +17,6 @@ import java.util.Optional;
 @RestController
 public class TransactionController implements ITransactionController {
 
-    // todo interface
     private final ITransactionHandler transactionHandler;
 
     public TransactionController(ITransactionHandler transactionHandler) {
