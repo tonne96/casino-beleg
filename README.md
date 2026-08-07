@@ -193,9 +193,50 @@ durchgefuehrt werden.
 
 ## Banking-Service
 
-> Dieser Abschnitt wird vom verantwortlichen Teammitglied ergaenzt. Er soll
-> insbesondere den Verantwortungsbereich, den internen Aufbau, fachliche
-> Entscheidungen und die Teststrategie des Banking-Service erklaeren.
+Der Banking-Service ist die zentrale Datenquelle des Casino-Systems. Er
+verwaltet Benutzer, Guthaben und Transaktionen. Roulette- und Slots-Service
+kommunizieren ausschliesslich ueber HTTP mit ihm; ein direkter Datenbankzugriff
+von aussen findet nicht statt.
+
+### Architektur- und Designentscheidungen
+
+Der Service folgt der **Vertikal-Slice-Architektur** mit den Sub-Domainen
+`User` und `Transaction`. Controller, Handler und Views sind pro Sub-Domaine
+getrennt. Controller und Handler haengen von Interfaces ab
+(`IUserHandler`, `ITransactionHandler` usw.), nicht von konkreten
+Implementierungen — das folgt dem **Dependency-Inversion-Prinzip** und erlaubt
+das isolierte Testen mit Mockito.
+
+Da Sub-Domainen laut Vertikal-Slice-Architektur nicht direkt miteinander
+kommunizieren duerfen, bucht der `TransactionHandler` Kontostandsaenderungen
+ueber einen **HTTP-Self-Call** an den eigenen User-Endpunkt (`RestTemplate`).
+
+### Banking-Endpunkte
+
+| Methode | Pfad | Beschreibung |
+|---|---|---|
+| `GET` | `/casino/bank/api/user/{id}` | Einen Benutzer abrufen |
+| `GET` | `/casino/bank/api/users` | Alle Benutzer abrufen |
+| `POST` | `/casino/bank/api/user` | Einen Benutzer anlegen |
+| `PUT` | `/casino/bank/api/user/{user_id}` | Einen Benutzer aktualisieren |
+| `DELETE` | `/casino/bank/api/user/{user_id}` | Einen Benutzer loeschen |
+| `POST` | `/casino/bank/api/user/{user_id}/deposit/{amount}/{decimals}` | Guthaben einzahlen |
+| `GET` | `/casino/bank/api/transactions` | Alle Transaktionen abrufen |
+| `GET` | `/casino/bank/api/transactions/user/{id}` | Transaktionen eines Benutzers abrufen |
+| `POST` | `/casino/bank/api/transaction/user/{user_id}` | Transaktion anlegen und Kontostand anpassen |
+| `PUT` | `/casino/bank/api/transaction/{transaction_id}` | Transaktion aktualisieren |
+| `DELETE` | `/casino/bank/api/transaction/{transaction_id}` | Transaktion loeschen |
+
+### Teststrategie
+
+| Schicht | Testart | Abhaengigkeiten |
+|---|---|---|
+| `User`, `Transaction` | Unit-Test ohne Mock | keine |
+| `UserHandler`, `TransactionHandler` | Unit-Test mit Mockito | Repository und RestTemplate werden gemockt |
+| `UserController`, `TransactionController` | Unit-Test mit Mockito | Handler-Interface wird gemockt |
+
+Eingabewerte werden mit `Random` variiert. Zusaetzlich werden `null`, leere
+Strings, negative Betraege und nicht vorhandene IDs explizit geprueft.
 
 ## Roulette-Service
 
@@ -637,11 +678,13 @@ casino-beleg/
 ## Autoren und Zustaendigkeiten
 
 - **Slots-Service** : Phu Dat Tran
-- **Banking-Service**: Name des zustaendigen Teammitglieds ergaenzen
+- **Banking-Service**: Anton Eckey
 - **Roulette-Service**: Name des zustaendigen Teammitglieds ergaenzen
 - **Gemeinsame Architektur und Dokumentation**: Teamangaben ergaenzen
 
 
 ## Lizenz
 
-Ist Freiwillig
+Dieses Projekt steht unter der
+[Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/).
+
