@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
- * Unit-Test fuer Kommunikationsfehler zum Banking-Service.
+ * Unit-Test für Kommunikationsfehler zum Banking-Service.
  */
 class BankingCommunicationExceptionTest {
 

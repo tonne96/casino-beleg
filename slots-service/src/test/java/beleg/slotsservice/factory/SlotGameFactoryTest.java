@@ -12,9 +12,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Tests fuer die SlotGameFactory.
+ * Unit-Tests für die SlotGameFactory.
  *
- * Die Factory uebersetzt ein berechnetes SlotGameResult in eine speicherbare
+ * Die Factory übersetzt ein berechnetes SlotGameResult in eine speicherbare
  * SlotGame-Entity.
  */
 class SlotGameFactoryTest {

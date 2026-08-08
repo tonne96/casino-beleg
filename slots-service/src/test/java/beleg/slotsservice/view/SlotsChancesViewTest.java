@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Test fuer die zusammengefassten Gewinnchancen.
+ * Unit-Test für die zusammengefassten Gewinnchancen.
  */
 class SlotsChancesViewTest {
 

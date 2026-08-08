@@ -7,9 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * View-DTO fuer die JSON-Aussendarstellung einer gespeicherten Slot-Runde.
- */
 public record SlotGameView(
         Long gameId,
         Long user,

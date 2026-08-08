@@ -3,7 +3,7 @@ package beleg.slotsservice.view;
 import java.math.BigDecimal;
 
 /**
- * View-DTO fuer die zusammengefassten Slot-Statistiken.
+ * View-DTO für die zusammengefassten Slot-Statistiken.
  *
  * Die Feldnamen orientieren sich direkt an der Belegvorgabe.
  */

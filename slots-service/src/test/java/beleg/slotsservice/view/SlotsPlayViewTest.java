@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Test fuer die JSON-Antwort einer gespielten Slot-Runde.
+ * Unit-Test für die JSON-Antwort einer gespielten Slot-Runde.
  */
 class SlotsPlayViewTest {
 

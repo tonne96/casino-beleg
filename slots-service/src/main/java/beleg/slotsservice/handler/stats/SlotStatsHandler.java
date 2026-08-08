@@ -13,10 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * SlotStatsHandler = Standard-Implementierung fuer Slot-Statistiken.
- *
- * Diese Klasse berechnet zusammengefasste Werte aus der Slots-Datenbank.
- * Sie spielt keine neue Runde und loescht keine Daten.
+ * Berechnet zusammengefasste Statistiken aus gespeicherten Slot-Runden.
  */
 @Service
 public class SlotStatsHandler implements ISlotStatsHandler {
@@ -27,9 +24,6 @@ public class SlotStatsHandler implements ISlotStatsHandler {
         this.gameResultRepository = gameResultRepository;
     }
 
-    /**
-     * Berechnet die Gesamtstatistik ueber alle gespeicherten Slot-Runden.
-     */
     @Override
     public SlotsStatsView getStats() {
         List<SlotGame> games = gameResultRepository.findAll();
@@ -55,9 +49,6 @@ public class SlotStatsHandler implements ISlotStatsHandler {
         );
     }
 
-    /**
-     * Berechnet die zusammengefasste Statistik fuer einen einzelnen User.
-     */
     @Override
     public Optional<SlotsUserStatsView> getUserStats(Long userId) {
         List<SlotGame> games = gameResultRepository.findByUserId(userId);
@@ -100,7 +91,7 @@ public class SlotStatsHandler implements ISlotStatsHandler {
      *
      * Beispiel bei Einsatz 10:
      *  - Verlust: payoutMultiplier 0  -> Cash-Out 0
-     *  - Einsatz zurueck: 1           -> Cash-Out 10
+     *  - Einsatz zurück: 1           -> Cash-Out 10
      *  - Drei gleiche: 3              -> Cash-Out 30
      *  - Jackpot: 10                  -> Cash-Out 100
      */

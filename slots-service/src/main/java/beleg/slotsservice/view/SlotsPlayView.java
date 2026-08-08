@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * View-DTO fuer die JSON-Antwort einer Slot-Runde.
+ * View-DTO für die JSON-Antwort einer Slot-Runde.
  *
- * Views trennen die interne Domain-Logik von der Darstellung nach aussen.
+ * Views trennen die interne Domain-Logik von der Darstellung nach außen.
  */
 public record SlotsPlayView(
         Long gameId,

@@ -15,11 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * Handler fuer den kompletten Ablauf einer Slot-Runde.
- *
- * Diese Klasse entlastet den Controller:
- * User pruefen, Guthaben pruefen, Spiel ausfuehren, Banking buchen
- * und Ergebnis speichern passieren hier.
+ * Koordiniert Banking-Prüfung, Spiellogik und Speicherung einer Slot-Runde.
  */
 @Service
 public class PlaySlotsHandler implements IPlaySlotsHandler {
@@ -37,12 +33,6 @@ public class PlaySlotsHandler implements IPlaySlotsHandler {
         this.bankingClient = bankingClient;
     }
 
-    /**
-     * Fuehrt eine zustandslose Slot-Runde aus.
-     *
-     * Wichtig: Erst wird beim Banking-Service gebucht. Wenn Banking ablehnt,
-     * wird keine Slot-Runde in der Slots-Datenbank gespeichert.
-     */
     @Override
     public SlotsPlayView play(PlaySlotsRequest request) {
         validateRequest(request);
@@ -94,10 +84,6 @@ public class PlaySlotsHandler implements IPlaySlotsHandler {
         request.validate();
     }
 
-    /**
-     * Der Slots-Service verhindert selbst, dass ein User mehr setzt,
-     * als er laut Banking-Service auf dem Konto hat.
-     */
     private void ensureEnoughBalance(BankingUserView user, BigDecimal betAmount) {
         if (user == null || user.balance() == null) {
             throw new BankingCommunicationException("Banking-Service hat keinen gueltigen User geliefert.", null);

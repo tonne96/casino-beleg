@@ -30,9 +30,6 @@ public class SlotGameHandler implements ISlotGameHandler {
         this.random = new SecureRandom();
     }
 
-    /**
-     * Spielt eine echte zufaellige Slot-Runde.
-     */
     @Override
     public SlotGameResult play(BigDecimal betAmount) {
         validateBetAmount(betAmount);
@@ -57,7 +54,7 @@ public class SlotGameHandler implements ISlotGameHandler {
     }
 
     /**
-     * Berechnet den Netto-Betrag fuer Banking und Response.
+     * Berechnet den Netto-Betrag für Banking und Response.
      *
      * Der Einsatz wird bei jeder Runde zuerst riskiert. Bei einem Gewinn wird
      * die Auszahlung dagegen gerechnet:
@@ -66,7 +63,7 @@ public class SlotGameHandler implements ISlotGameHandler {
      *  - Drei gleiche: 3x Auszahlung - 1x Einsatz = +2x Einsatz
      *  - Jackpot: 10x Auszahlung - 1x Einsatz = +9x Einsatz
      */
-    private BigDecimal calculateNetAmount(BigDecimal betAmount, int payoutMultiplier) {
+    private static BigDecimal calculateNetAmount(BigDecimal betAmount, int payoutMultiplier) {
         BigDecimal payoutAmount = betAmount.multiply(BigDecimal.valueOf(payoutMultiplier));
         return payoutAmount.subtract(betAmount);
     }
@@ -82,7 +79,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         return slotStates;
     }
 
-    private int calculatePayoutMultiplier(List<SlotSymbol> slotStates) {
+    private static int calculatePayoutMultiplier(List<SlotSymbol> slotStates) {
         if (isJackpot(slotStates)) {
             return JACKPOT_MULTIPLIER;
         }
@@ -95,7 +92,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         return 0;
     }
 
-    private boolean isJackpot(List<SlotSymbol> slotStates) {
+    private static boolean isJackpot(List<SlotSymbol> slotStates) {
         for (SlotSymbol symbol : slotStates) {
             if (symbol != SlotSymbol.SEVEN) {
                 return false;
@@ -105,7 +102,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         return true;
     }
 
-    private boolean allSymbolsEqual(List<SlotSymbol> slotStates) {
+    private static boolean allSymbolsEqual(List<SlotSymbol> slotStates) {
         SlotSymbol firstSymbol = slotStates.get(0);
         SlotSymbol secondSymbol = slotStates.get(1);
         SlotSymbol thirdSymbol = slotStates.get(2);
@@ -113,7 +110,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         return firstSymbol == secondSymbol && firstSymbol == thirdSymbol;
     }
 
-    private boolean hasTwoEqualSymbols(List<SlotSymbol> slotStates) {
+    private static boolean hasTwoEqualSymbols(List<SlotSymbol> slotStates) {
         SlotSymbol first = slotStates.get(0);
         SlotSymbol second = slotStates.get(1);
         SlotSymbol third = slotStates.get(2);
@@ -121,7 +118,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         return first == second || first == third || second == third;
     }
 
-    private void validateBetAmount(BigDecimal betAmount) {
+    private static void validateBetAmount(BigDecimal betAmount) {
         if (betAmount == null) {
             throw new IllegalArgumentException("BetAmount darf nicht null sein.");
         }
@@ -130,7 +127,7 @@ public class SlotGameHandler implements ISlotGameHandler {
         }
     }
 
-    private void validateSlotStates(List<SlotSymbol> slotStates) {
+    private static void validateSlotStates(List<SlotSymbol> slotStates) {
         if (slotStates == null || slotStates.size() != REEL_COUNT) {
             throw new IllegalArgumentException("Eine Slot-Runde braucht genau drei Symbole.");
         }

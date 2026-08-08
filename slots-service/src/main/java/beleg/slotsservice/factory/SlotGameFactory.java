@@ -10,17 +10,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * SlotGameFactory = Implementierung fuer die Erzeugung von SlotGame.
- *
- * Diese Factory uebersetzt das Ergebnis des Game-Simulators in eine
- * speicherbare SlotGame-Entity.
+ * Übersetzt ein Simulator-Ergebnis in eine speicherbare SlotGame-Entity.
  */
 @Service
 public class SlotGameFactory implements ISlotGameFactory {
 
-    /**
-     * Erstellt eine neue SlotGame-Entity fuer die Speicherung in der Slots-DB.
-     */
     @Override
     public SlotGame create(Long userId, BigDecimal betAmount, SlotGameResult result) {
         if (result == null) {
@@ -29,7 +23,6 @@ public class SlotGameFactory implements ISlotGameFactory {
 
         List<SlotSymbol> slotStates = result.slotStates();
 
-        // Hier wird das Simulator-Ergebnis in einzelne Entity-Felder uebersetzt.
         return SlotGame.create(
                 userId,
                 betAmount,

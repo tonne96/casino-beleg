@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controller fuer gespeicherte Slot-Runden.
- *
- * Diese Endpunkte machen die Spielhistorie ueber Swagger/Clients abrufbar.
+ * HTTP-Zugriff auf Statistiken und gespeicherte Slot-Runden.
  */
 @RestController
 @RequestMapping("/casino/slots/api")
@@ -30,21 +28,11 @@ public class SlotsStatsController {
         this.slotStatsHandler = slotStatsHandler;
     }
 
-    /**
-     * GET /casino/slots/api/stats
-     *
-     * Liefert eine zusammengefasste Statistik ueber alle gespeicherten Slot-Runden.
-     */
     @GetMapping("/stats")
     public ResponseEntity<SlotsStatsView> getStats() {
         return ResponseEntity.ok(slotStatsHandler.getStats());
     }
 
-    /**
-     * GET /casino/slots/api/stats/games
-     *
-     * Liefert alle gespeicherten Slot-Runden.
-     */
     @GetMapping("/stats/games")
     public ResponseEntity<List<SlotGameView>> getAllGames() {
         List<SlotGame> allGames = slotGameHistoryHandler.getAllGames();
@@ -57,11 +45,6 @@ public class SlotsStatsController {
         return ResponseEntity.ok(games);
     }
 
-    /**
-     * GET /casino/slots/api/stats/user/{user_id}
-     *
-     * Liefert die zusammengefasste Statistik eines Users.
-     */
     @GetMapping("/stats/user/{user_id}")
     public ResponseEntity<SlotsUserStatsView> getUserStats(@PathVariable Long user_id) {
         if (user_id == null || user_id <= 0) {
@@ -77,11 +60,6 @@ public class SlotsStatsController {
         return ResponseEntity.ok(userStats.get());
     }
 
-    /**
-     * GET /casino/slots/api/stat/{game_id}
-     *
-     * Liefert eine einzelne gespeicherte Slot-Runde.
-     */
     @GetMapping("/stat/{game_id}")
     public ResponseEntity<SlotGameView> getGame(@PathVariable Long game_id) {
         if (game_id == null || game_id <= 0) {
@@ -99,11 +77,6 @@ public class SlotsStatsController {
         return ResponseEntity.ok(view);
     }
 
-    /**
-     * DELETE /casino/slots/api/stat/{game_id}
-     *
-     * Loescht eine gespeicherte Slot-Runde und gibt sie zur Kontrolle zurueck.
-     */
     @DeleteMapping("/stat/{game_id}")
     public ResponseEntity<SlotGameView> deleteGame(@PathVariable Long game_id) {
         if (game_id == null || game_id <= 0) {

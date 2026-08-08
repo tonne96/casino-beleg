@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Test fuer vom Banking-Service gelieferte Userdaten.
+ * Unit-Test für vom Banking-Service gelieferte Userdaten.
  */
 class BankingUserViewTest {
 

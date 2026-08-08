@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer die Statistik-Logik.
+ * Unit-Tests für die Statistik-Logik.
  *
- * Das Repository wird gemockt. Dadurch pruefen wir nur die Berechnung im
+ * Das Repository wird gemockt. Dadurch prüfen wir nur die Berechnung im
  * SlotStatsHandler.
  */
 class SlotStatsHandlerTest {

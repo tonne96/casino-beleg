@@ -3,9 +3,8 @@ package beleg.slotsservice.client;
 import java.math.BigDecimal;
 
 /**
- * DTO fuer die Antwort des Banking-Service bei GET /casino/bank/api/user/{id}.
- *
- * Die Feldnamen passen absichtlich zur JSON-Antwort vom Banking-Service.
+ * Antwort des Banking-Service bei GET /casino/bank/api/user/{id}.
+ * Die Feldnamen entsprechen dessen JSON-Vertrag.
  */
 public record BankingUserView(
         Long id,

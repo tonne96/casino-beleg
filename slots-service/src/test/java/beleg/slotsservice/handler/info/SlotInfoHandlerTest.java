@@ -14,10 +14,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Tests fuer die Info-Logik.
+ * Unit-Tests für die Info-Logik.
  *
  * Diese Tests gleichen Regeln und Chancen mit den Anforderungen aus dem Beleg ab:
- * Regeln und Gewinnchancen muessen ueber die Info-Endpunkte abrufbar sein.
+ * Regeln und Gewinnchancen müssen über die Info-Endpunkte abrufbar sein.
  */
 class SlotInfoHandlerTest {
 

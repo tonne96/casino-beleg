@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer die Historien-Logik.
+ * Unit-Tests für die Historien-Logik.
  *
  * Repository und Factory werden gemockt, damit nur der Ablauf im Handler
  * getestet wird.

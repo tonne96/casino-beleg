@@ -15,7 +15,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Tests fuer die reine Slot-Spiellogik.
+ * Unit-Tests für die reine Slot-Spiellogik.
  *
  * Hier wird bewusst evaluate(...) getestet, weil diese Methode keinen Zufall,
  * kein HTTP und keine Datenbank braucht.

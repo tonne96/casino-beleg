@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Test fuer die Aussendarstellung einer gespeicherten Slot-Runde.
+ * Unit-Test für die Außendarstellung einer gespeicherten Slot-Runde.
  */
 class SlotGameViewTest {
 

@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Test fuer die Regelbeschreibung des Slots-Service.
+ * Unit-Test für die Regelbeschreibung des Slots-Service.
  */
 class SlotsRulesViewTest {
 

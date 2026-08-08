@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Test fuer die Darstellung einer einzelnen Gewinnchance.
+ * Unit-Test für die Darstellung einer einzelnen Gewinnchance.
  */
 class SlotChanceViewTest {
 

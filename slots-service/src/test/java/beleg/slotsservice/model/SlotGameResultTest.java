@@ -11,7 +11,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Tests fuer das Ergebnis einer simulierten Slot-Runde.
+ * Unit-Tests für das Ergebnis einer simulierten Slot-Runde.
  */
 class SlotGameResultTest {
 

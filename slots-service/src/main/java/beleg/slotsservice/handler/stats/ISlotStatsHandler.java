@@ -6,22 +6,14 @@ import beleg.slotsservice.view.SlotsUserStatsView;
 import java.util.Optional;
 
 /**
- * Interface fuer zusammengefasste Slot-Statistiken.
- *
- * Der Controller kennt nur diesen Vertrag; die konkrete Berechnung liegt in SlotStatsHandler.
+ * Vertrag für zusammengefasste Slot-Statistiken.
  */
 public interface ISlotStatsHandler {
 
-    /**
-     * Berechnet die Gesamtstatistik ueber alle gespeicherten Slot-Runden.
-     */
     SlotsStatsView getStats();
 
     /**
-     * Berechnet die Statistik fuer einen bestimmten User.
-     *
-     * Optional.empty bedeutet: Fuer diesen User gibt es keine gespeicherten
-     * Slot-Runden und damit auch keine Statistik.
+     * {@code Optional.empty()} bedeutet, dass für den User keine Spiele vorliegen.
      */
     Optional<SlotsUserStatsView> getUserStats(Long userId);
 }

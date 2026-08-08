@@ -7,21 +7,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Interface fuer die reine Slot-Spiellogik.
- *
- * Controller und andere Klassen haengen nur von diesem Vertrag ab.
- * Die konkrete Ausfuehrung liegt in SlotGameHandler.
+ * Vertrag für die reine, von HTTP und Datenbank unabhängige Spiellogik.
  */
 public interface ISlotGameHandler {
 
-    /**
-     * Spielt eine echte zufaellige Slot-Runde.
-     */
     SlotGameResult play(BigDecimal betAmount);
 
     /**
      * Bewertet eine Runde mit vorgegebenen Symbolen.
-     * Diese Methode ist besonders gut fuer spaetere Unit-Tests.
+     * Die vorgegebenen Symbole ermöglichen deterministische Unit-Tests.
      */
     SlotGameResult evaluate(BigDecimal betAmount, List<SlotSymbol> slotStates);
 }

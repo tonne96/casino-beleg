@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit-Test fuer einen im Banking unbekannten User.
+ * Unit-Test für einen im Banking unbekannten User.
  */
 class BankingUserNotFoundExceptionTest {
 

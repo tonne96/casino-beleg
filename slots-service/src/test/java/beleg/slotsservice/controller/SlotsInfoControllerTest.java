@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer den Info-Controller.
+ * Unit-Tests für den Info-Controller.
  *
- * Der InfoHandler wird gemockt. Dadurch pruefen wir nur, ob der Controller
- * die Info-Ergebnisse korrekt als HTTP 200 zurueckgibt.
+ * Der InfoHandler wird gemockt. Dadurch prüfen wir nur, ob der Controller
+ * die Info-Ergebnisse korrekt als HTTP 200 zurückgibt.
  */
 class SlotsInfoControllerTest {
 

@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * Domain-Ergebnis einer einzelnen Slot-Runde.
  *
- * amount ist der Netto-Betrag, der spaeter beim Banking-Service gebucht wird:
- * positiver Betrag = echter Gewinn, 0 = Einsatz zurueck, negativer Betrag = Verlust.
+ * amount ist der Netto-Betrag, der später beim Banking-Service gebucht wird:
+ * positiver Betrag = echter Gewinn, 0 = Einsatz zurück, negativer Betrag = Verlust.
  */
 public record SlotGameResult(
         boolean winning,

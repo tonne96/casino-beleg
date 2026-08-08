@@ -11,10 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller nimmt HTTP-Requests von aussen entgegen und gibt HTTP-Responses zurueck.
- *
- * Die fachliche Play-Logik liegt im PlaySlotsHandler.
- * Dadurch bleibt der Controller bewusst duenn.
+ * HTTP-Einstiegspunkt für Slot-Runden.
+ * Die fachliche Ablaufsteuerung liegt im PlaySlotsHandler.
  */
 @RestController
 @RequestMapping("/casino/slots/api")
@@ -26,13 +24,6 @@ public class SlotsController {
         this.playSlotsHandler = playSlotsHandler;
     }
 
-    /**
-     * POST /casino/slots/api/play
-     *
-     * Startet eine einzelne zustandslose Slot-Runde mit dem PlaySlotsHandler.
-     * 
-     * Der Controller kuemmert sich hier nur um HTTP-Erfolg und HTTP-Fehlercodes.
-     */
     @PostMapping("/play")
     public ResponseEntity<SlotsPlayView> play(@RequestBody PlaySlotsRequest request) {
         try {

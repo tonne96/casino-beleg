@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer den Play-Controller.
+ * Unit-Tests für den Play-Controller.
  *
  * Der PlaySlotsHandler wird gemockt. Dadurch testen wir hier nur,
- * ob der Controller die richtigen HTTP-Statuscodes zurueckgibt.
+ * ob der Controller die richtigen HTTP-Statuscodes zurückgibt.
  */
 class SlotsControllerTest {
 

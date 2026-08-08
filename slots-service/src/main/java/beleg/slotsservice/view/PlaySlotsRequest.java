@@ -2,12 +2,6 @@ package beleg.slotsservice.view;
 
 import java.math.BigDecimal;
 
-/**
- * Request-DTO fuer das Spielen einer Slot-Runde.
- *
- * Dieses Objekt beschreibt nur, was von aussen in den Slots-Service reinkommt.
- * Die eigentliche Spiellogik bleibt im SlotGameHandler.
- */
 public record PlaySlotsRequest(
         Long user,
         BigDecimal betAmount

@@ -13,10 +13,7 @@ import org.springframework.web.client.RestClientException;
 import java.math.BigDecimal;
 
 /**
- * BankingClient = konkrete HTTP-Implementierung des IBankingClient-Interfaces.
- *
- * Diese Klasse kennt die Banking-URLs und nutzt Spring RestClient.
- * Andere Klassen haengen trotzdem nur vom Interface IBankingClient ab.
+ * HTTP-Implementierung der Banking-Schnittstelle mit Spring RestClient.
  */
 @Service
 public class BankingClient implements IBankingClient {
@@ -32,21 +29,11 @@ public class BankingClient implements IBankingClient {
                 .build());
     }
 
-    /**
-     * Package-private Konstruktor fuer isolierte Client-Tests.
-     * Im echten Betrieb verwendet Spring weiterhin den oeffentlichen Konstruktor.
-     */
+    // Ermöglicht isolierte Tests mit einem vorbereiteten RestClient.
     BankingClient(RestClient restClient) {
         this.restClient = restClient;
     }
 
-    /**
-     * Fragt den User beim Banking-Service ab.
-     *
-     * Wird genutzt, um zu pruefen:
-     *  - existiert der User?
-     *  - wie hoch ist sein aktuelles Guthaben?
-     */
     @Override
     public BankingUserView getUser(Long userId) {
         try {

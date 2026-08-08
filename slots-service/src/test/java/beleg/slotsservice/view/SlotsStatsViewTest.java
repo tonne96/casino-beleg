@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Test fuer die globale Statistikantwort aus der Belegvorgabe.
+ * Unit-Test für die globale Statistikantwort aus der Belegvorgabe.
  */
 class SlotsStatsViewTest {
 

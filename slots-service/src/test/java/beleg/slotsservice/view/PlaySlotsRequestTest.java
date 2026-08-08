@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Unit-Tests fuer Eingaben des Play-Endpunkts.
+ * Unit-Tests für Eingaben des Play-Endpunkts.
  */
 class PlaySlotsRequestTest {
 

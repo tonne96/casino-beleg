@@ -11,9 +11,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit-Tests fuer die SlotGame-Entity.
+ * Unit-Tests für die SlotGame-Entity.
  *
- * Diese Tests pruefen, dass SlotGame nur in einem gueltigen Zustand erzeugt
+ * Diese Tests prüfen, dass SlotGame nur in einem gültigen Zustand erzeugt
  * werden kann.
  */
 class SlotGameTest {

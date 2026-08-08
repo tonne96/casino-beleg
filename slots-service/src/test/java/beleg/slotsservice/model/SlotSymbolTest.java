@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-Tests fuer die erlaubten Symbole des Spielautomaten.
+ * Unit-Tests für die erlaubten Symbole des Spielautomaten.
  */
 class SlotSymbolTest {
 

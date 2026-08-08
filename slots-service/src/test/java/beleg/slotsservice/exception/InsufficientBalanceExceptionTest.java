@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Unit-Test fuer unzureichendes Spielguthaben.
+ * Unit-Test für unzureichendes Spielguthaben.
  */
 class InsufficientBalanceExceptionTest {
 

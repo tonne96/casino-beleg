@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer den kompletten Play-Ablauf.
+ * Unit-Tests für den kompletten Play-Ablauf.
  *
- * Banking, Spiellogik und Historie werden gemockt. Dadurch pruefen wir nur,
- * ob der PlaySlotsHandler die Schritte in der richtigen Reihenfolge ausfuehrt.
+ * Banking, Spiellogik und Historie werden gemockt. Dadurch prüfen wir nur,
+ * ob der PlaySlotsHandler die Schritte in der richtigen Reihenfolge ausführt.
  */
 class PlaySlotsHandlerTest {
 

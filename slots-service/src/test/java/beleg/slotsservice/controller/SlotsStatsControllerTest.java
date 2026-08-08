@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit-Tests fuer den Statistik-Controller.
+ * Unit-Tests für den Statistik-Controller.
  *
- * Die Handler werden gemockt. Der Test prueft nur, ob der Controller die
- * Handler-Ergebnisse korrekt in HTTP-Responses uebersetzt.
+ * Die Handler werden gemockt. Der Test prüft nur, ob der Controller die
+ * Handler-Ergebnisse korrekt in HTTP-Responses übersetzt.
  */
 class SlotsStatsControllerTest {
 

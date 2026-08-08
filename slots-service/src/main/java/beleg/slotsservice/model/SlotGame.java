@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Domain-Entity: repraesentiert eine gespeicherte Slot-Runde.
- *
- * Diese Entity ist die Grundlage fuer Spielhistorie und Statistiken.
- * @GeneratedValue: die ID wird automatisch von der Datenbank generiert.
+ * Persistierte Slot-Runde als Grundlage für Historie und Statistiken.
  */
 @Entity
 @Table(name = "slot_game")
@@ -51,15 +48,10 @@ public class SlotGame {
     @Column(name = "played_at", nullable = false)
     private LocalDateTime playedAt;
 
-    // JPA benoetigt einen parameterlosen Konstruktor.
+    // JPA benötigt einen parameterlosen Konstruktor.
     protected SlotGame() {}
 
-    /**
-     * Factory-Methode fuer eine neue gespeicherte Slot-Runde.
-     *
-     * Von aussen soll eine SlotGame-Entity bewusst ueber create(...) erzeugt werden.
-     * Dadurch bleibt die Erzeugung an einer Stelle gekapselt.
-     */
+    // Die Factory-Methode stellt sicher, dass nur validierte Entities entstehen.
     public static SlotGame create(
             Long userId,
             BigDecimal betAmount,
@@ -92,13 +84,7 @@ public class SlotGame {
         );
     }
 
-    /**
-     * Fachlicher Konstruktor bleibt privat.
-     *
-     * Die SlotGame-Entity bekommt nur fertige Werte. Sie kennt kein
-     * SlotGameResult, weil das Ergebnis vorher vom Simulator berechnet und
-     * in der Factory in speicherbare Felder uebersetzt wird.
-     */
+    // Die Entity kennt nur fertige Werte und keine Simulator-Datenstruktur.
     private SlotGame(
             Long userId,
             BigDecimal betAmount,

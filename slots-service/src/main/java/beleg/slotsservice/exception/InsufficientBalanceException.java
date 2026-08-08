@@ -2,9 +2,6 @@ package beleg.slotsservice.exception;
 
 import java.math.BigDecimal;
 
-/**
- * Wird geworfen, wenn ein User nicht genug Guthaben fuer den Einsatz hat.
- */
 public class InsufficientBalanceException extends RuntimeException {
 
     public InsufficientBalanceException(Long userId, BigDecimal balance, BigDecimal betAmount) {

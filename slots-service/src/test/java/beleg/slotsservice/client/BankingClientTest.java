@@ -20,7 +20,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
- * Unit-Tests fuer die HTTP-Kommunikation mit dem Banking-Service.
+ * Unit-Tests für die HTTP-Kommunikation mit dem Banking-Service.
  */
 class BankingClientTest {
 
